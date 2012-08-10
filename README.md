@@ -23,3 +23,7 @@ And also provides helper functions that lift the arrow abstraction to a *pipelin
 The library also implements some monad classes, primarily, for use with the Kleisli arrow class. These are:
  * Maybe, and
  * State.
+
+Function Arrows
+---------------
+
