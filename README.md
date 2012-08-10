@@ -6,7 +6,7 @@ A pipeline building library based on *arrows*. Arrows are abstractions of comput
 This implementation is heavily inspired by the Haskell arrow typeclasses: a description of which can be found [here](http://www.haskell.org/arrows/index.html).
 
 Arrow introductory reading:
- 
+ * Generalising Monads to Arrows, in Science of Computer Programming 37, pp67-111, May 2000
  * Arrows, By Christoph Galliker, June 2010
  * Kleisli arrows of outrageous fortune, Conor McBride, 2011
 
