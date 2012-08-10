@@ -10,8 +10,8 @@ Arrow introductory reading:
  * Arrows, By Christoph Galliker, June 2010
  * Kleisli arrows of outrageous fortune, Conor McBride, 2011
 
-The Implemenation
------------------
+The Implementation
+------------------
 
 This Python implementation provides the following arrows:
  * Function arrow,
