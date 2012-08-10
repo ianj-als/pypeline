@@ -19,3 +19,7 @@ This Python implementation provides the following arrows:
  * Kleisli arrow (It is expected that the Kleisli choice arrow will be implemented shortly).
 
 And also provides helper functions that lift the arrow abstraction to a *pipeline component* level, in order that pipelines can be constructed without "seeing" and arrow directly. However, if the programmer wishes the underlying arrow classes can be used to build pipelines using the helper function.
+
+The library also implements some monad classes, primarily, for use with the Kleisli arrow class. These are:
+ * Maybe, and
+ * State.
