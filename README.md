@@ -21,6 +21,9 @@ To install an Egg:
 
   `sudo python setup.py install bdist_egg`
 
+To view setup help:
+
+  `python setup.py --help`
 
 The Implementation
 ------------------
