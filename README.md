@@ -25,8 +25,8 @@ To view setup help:
 
   `python setup.py --help`
 
-The Implementation
-------------------
+Implementation
+--------------
 
 This Python implementation provides the following arrows:
  * Function arrow,
