@@ -19,7 +19,7 @@ setuptools is required to build, test and install Pypeline. Eggs can be built an
 
 To install an Egg:
 
-  sudo python setup.py install bdist_egg
+  `sudo python setup.py install bdist_egg`
 
 
 The Implementation
