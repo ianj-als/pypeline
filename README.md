@@ -12,6 +12,16 @@ Arrow introductory reading:
  * Arrows, By Christoph Galliker, June 2010
  * Kleisli arrows of outrageous fortune, Conor McBride, 2011
 
+Installation
+------------
+
+setuptools is required to build, test and install Pypeline. Eggs can be built and installed also.
+
+To install an Egg:
+
+  sudo python setup.py install bdist_egg
+
+
 The Implementation
 ------------------
 
@@ -25,7 +35,3 @@ And also provides helper functions that lift the arrow abstraction to a *pipelin
 The library also implements some monad classes, primarily, for use with the Kleisli arrow class. These are:
  * Maybe, and
  * State.
-
-Function Arrows
----------------
-
