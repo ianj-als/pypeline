@@ -62,9 +62,9 @@ There are no rules for creating your pipelines. Pipelines, pipeline components, 
 
 ### Pipeline Component Functions
 
-#### `helpers.cons_function_component(function, input_forming_function = None, output_forming_function = None, state_mutator = None)
+#### `helpers.cons_function_component(function, input_forming_function = None, output_forming_function = None, state_mutator = None)`
 
-### `helpers.cons_subprocess_component(process_pipe, input_forming_function, output_forming_function, state_mutator = None)
+#### `helpers.cons_subprocess_component(process_pipe, input_forming_function, output_forming_function, state_mutator = None)`
 
 ### Wire Functions
 
