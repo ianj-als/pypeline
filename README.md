@@ -80,14 +80,22 @@ Executes a pipeline with an input, which is presented to the first Kleisli arrow
     helpers.cons_function_component(function,
                                     input_forming_function = None,
                                     output_forming_function = None,
-                                    state_mutator = None)
+                                    state_mutator_function = None)
+
+Construct a pipeline component whose computation will be achieved using a function. Optional input and output forming functions pre- and post-process the input and output values to and from the function. An optional state mutator function can be provided to alter the state object passed into one of the pipeline run/evaluating/executing functions.
+
+The function must take only one argument. The value of this argument shall be the output of the previous Kleisli arrow in the pipeline, or the value returned by the input forming function if one is specified. The return value of the funtion shall be acceptable to either the next Kleisli arrow, in the pipeline, or the input of the output forming function if one is specified.
+
+The input and output forming functions shall take one argument.
+
+The state mutator function shall take one argument and return a mutated state object if desired. If no state mutator function is specified the state flows through the component unchanged.
 
 #### Constructing a Subprocess Based Pipeline Component
 
     helpers.cons_subprocess_component(process_pipe,
                                       input_forming_function,
                                       output_forming_function,
-                                      state_mutator = None)
+                                      state_mutator_function = None)
 
 ### Wire Functions
 
