@@ -61,11 +61,17 @@ Construct a pipeline from a component and two wires. The input wire shall conver
 #### Running a Pipeline
     helpers.run_pipeline(pipeline, input, state)
 
+Runs a pipeline with an input, which is presented to the first Kleisli arrow in the pipeline, and some initial state. The returned object shall be a 2-tuple containing the output, from the pipeline, and the resultant state.
+
 #### Evaluating a Pipeline
     helpers.eval_pipeline(pipeline, input, state)
 
+Evaluates a pipeline with an input, which is presented to the first Kleisli arrow in the pipeline, and some initial state. The returned value is the output of the arrow in the pipeline.
+
 #### Executing a Pipeline
     helpers.exec_pipeline(pipeline, input, state)
+
+Executes a pipeline with an input, which is presented to the first Kleisli arrow in the pipeline, and some initial state. The returned value is the resultant state object.
 
 ### Pipeline Component Functions
 
