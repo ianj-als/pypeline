@@ -46,3 +46,5 @@ Pipelines can be constructed using the helpers function in the [pypeline.helpers
  1. Pipelines,
  2. Pipeline components, and
  3. Wires.
+
+A pipeline is a series of pipeline components that are, optionally, connected with wires. Pipeline components can be constructed with functions, or with a `subprocess.Popen` object; this enables pipelines to be built that call externally running programs. Currently, the protocol for communicating with subprocesses is via stdin and stdout. A single line is fed into the subprocess on stdin and it shall respond with a single line on it's stdout.
