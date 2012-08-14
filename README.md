@@ -53,3 +53,25 @@ There are no rules for creating your pipelines. Pipelines, pipeline components, 
 
 #### `helpers.cons_pipeline(input_wire, component, output_wire)`
 > Construct a pipeline from a component and two wires. The input wire shall convert a real world input into the expected input for the component, and the output wire shall convert the output from the component into an expected real world value. The funtion returns a `core.arrows.KleisliArrow` object that represents the pipeline.
+
+#### `helpers.run_pipeline(pipeline, input, state)`
+
+#### `helpers.eval_pipeline(pipeline, input, state)`
+
+#### `helpers. exec_pipeline(pipeline, input, state)`
+
+### Pipeline Component Functions
+
+#### `helpers.cons_function_component(function, input_forming_function = None, output_forming_function = None, state_mutator = None)
+
+### `helpers.cons_subprocess_component(process_pipe, input_forming_function, output_forming_function, state_mutator = None)
+
+### Wire Functions
+
+#### `helpers.cons_wire(schema_conv_function)`
+
+#### `helpers.cons_dictionary_wire(conversions)`
+
+#### `helpers.wire_components(component_one, component_two, wire)`
+
+
