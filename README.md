@@ -1,5 +1,4 @@
-Pypeline - An arrow based pipelining library 
-============================================
+# Pypeline - An arrow based pipelining library 
 
 Pypeline is licensed using the [Lesser GNU Public License Version 3](http://www.gnu.org/licenses/lgpl.txt).
 
@@ -12,8 +11,7 @@ Arrow introductory reading:
  * Arrows, By Christoph Galliker, June 2010
  * Kleisli arrows of outrageous fortune, Conor McBride, 2011
 
-Installation
-------------
+## Installation
 
 setuptools is required to build, test and install Pypeline. Eggs can be built and installed also.
 
@@ -25,8 +23,7 @@ To view setup help:
 
   `python setup.py --help`
 
-Implementation
---------------
+## Implementation
 
 This Python implementation provides the following arrows:
  * Function arrow,
@@ -39,8 +36,7 @@ The library also implements some monad classes, primarily, for use with the Klei
  * Maybe, and
  * State.
 
-Pipelines
----------
+## Pipelines
 
 Pipelines can be constructed using the helpers function in the [pypeline.helpers.helpers](https://github.com/ianj-als/pypeline/blob/master/src/pypeline/helpers/helpers.py) module. There are three primatives that can be constructed:
  1. Pipelines,
@@ -51,4 +47,6 @@ A pipeline is a series of pipeline components that are, optionally, connected wi
 
 Wires can be used to convert the output of one pipeline component into the input of the succeeding pipeline component. Wires can be constructed using a function or a dictionary. Assuming a pipeline components outputs a dictionary and the next component accepts, as input, a dictionary, a wire, constructed from a dictionary, maps values in the output dictionary into a dictionary which is to be used as an input. Wires convert the output schema from one pipeline component to another. However, a wire constructed from a function can create arbitrary schema mappings.
 
-There are no rules for creating your pipeline. Pipelines, pipeline components, and wires are instances of a Kleisli arrow, and as such any one of these objects can be used as a 'pipeline'. It's up to you how your pipeline is constructed. The helper functions allow the programmer to compose the three conceptual primatives easily.
+There are no rules for creating your pipelines. Pipelines, pipeline components, and wires are instances of a Kleisli arrow, and as such any one of these objects can be used as a 'pipeline'. It's up to you how your pipeline is constructed. The helper functions allow the programmer to compose the three conceptual primatives easily.
+
+### Pipeline Functions
