@@ -50,3 +50,6 @@ Wires can be used to convert the output of one pipeline component into the input
 There are no rules for creating your pipelines. Pipelines, pipeline components, and wires are instances of a Kleisli arrow, and as such any one of these objects can be used as a 'pipeline'. It's up to you how your pipeline is constructed. The helper functions allow the programmer to compose the three conceptual primatives easily.
 
 ### Pipeline Functions
+
+#### `helpers.cons_pipeline(input_wire, component, output_wire)`
+> Construct a pipeline from a component and two wires. The input wire shall convert a real world input into the expected input for the component, and the output wire shall convert the output from the component into an expected real world value. The funtion returns a `core.arrows.KleisliArrow` object that represents the pipeline.
