@@ -117,12 +117,16 @@ The state mutator function shall take one argument and return a mutated state ob
 
     helpers.cons_wire(schema_conv_function)
 
+Construct a wire based on a function. The function should take two arguments: the output from the function or output forming function, if specified, and the state object. The function should return the object that shall be passed to the next pipeline component.
+
 #### Constructing a Dictionary Based Wire
 
     helpers.cons_dictionary_wire(conversions)
+
+Construct a wire based on a *conversion* dictionary. Assuming that dictionaries are used as values passed through a pipeline, or pipeline component, a dictionary based wire can be used. The dictionary, whose keys are the keys in the previous component's output are mapped to the conversion dictionary's values that are the keys of the next stage input dictionary.
 
 #### Wire Up Two Pipeline Components
 
     helpers.wire_components(component_one, component_two, wire)
 
-
+Take two components and place a wire between them.
