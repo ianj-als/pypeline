@@ -93,7 +93,7 @@ The input and output forming functions shall take two arguments: a value and the
     input_forming_function :: a -> s -> b
     output_forming_function :: a -> s -> b
 
-The state mutator function shall take one argument and return a mutated state object if desired. The state mutator function is applied after all the other functions have been applied. If no state mutator function is specified the state flows through the component unchanged.
+The state mutator function shall take one argument, the state object, and return a mutated state object if desired. The state mutator function is applied after all the other functions have been applied. If no state mutator function is specified the state flows through the component unchanged.
 
 #### Constructing a Subprocess Based Pipeline Component
 
@@ -109,7 +109,7 @@ The output from the previous component is applied to the input forming function 
     input_forming_function :: a -> s -> b
     output_forming_function :: a -> s -> b
 
-The state mutator function shall take one argument and return a mutated state object if desired. If no state mutator function is specified the state flows through the component unchanged.
+The state mutator function shall take one argument, the state object, and return a mutated state object if desired. If no state mutator function is specified the state flows through the component unchanged.
 
 ### Wire Functions
 
