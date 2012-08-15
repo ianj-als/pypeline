@@ -97,6 +97,12 @@ The state mutator function shall take one argument and return a mutated state ob
                                       output_forming_function,
                                       state_mutator_function = None)
 
+Construct a pipeline component whose computation will be achieved using a sub-process. Input and output forming functions should generate the single line given to the `stdin` of the sub-process, and parse out the single line written to the sub-process' `stdout` respectively. An optional state mutator function can be provided to alter the state object passed into one of the pipeline run/evaluating/executing functions.
+
+The output from the previous is applied to the input forming function and the "stringyfied" resultant object is written to the sub-process' `stdin`. Once the sub-process has responded a single line, from `stdout`, is applied to the output formin function. This function is to parse the response and the resultant object is passed to the subsequent pipeline component, or wire. The input and output forming functions shall take one argument.
+
+The state mutator function shall take one argument and return a mutated state object if desired. If no state mutator function is specified the state flows through the component unchanged.
+
 ### Wire Functions
 
 #### Constructing a Function Based Wire
