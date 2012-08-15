@@ -129,4 +129,4 @@ Construct a wire based on a *conversion* dictionary. Assuming that dictionaries 
 
     helpers.wire_components(component_one, component_two, wire)
 
-Take two components and place a wire between them.
+Returns a pipeline component that is the composition of two components with a wire between them.
