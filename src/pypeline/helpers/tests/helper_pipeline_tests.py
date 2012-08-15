@@ -73,38 +73,38 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
 
           comp_proc_one = PypelineHelperFunctionUnitTest.__cons_and_start_subprocess_component(
                reverse_command, tuple(),
-               lambda a: str(a['input']),
-               lambda a: {'output': str(a)},
+               lambda a, s: str(a['input']),
+               lambda a, s: {'output': str(a)},
                state_mutator = lambda s: s.append(rev_msg_one) or s)
           try:
                comp_proc_two = PypelineHelperFunctionUnitTest.__cons_and_start_subprocess_component(
                     reverse_command, tuple(),
-                    lambda a: str(a['input']),
-                    lambda a: {'output': str(a)},
+                    lambda a, s: str(a['input']),
+                    lambda a, s: {'output': str(a)},
                     state_mutator = lambda s: s.append(rev_msg_two) or s)
                try:
                     comp_one = comp_proc_one[0]
                     comp_two = comp_proc_two[0]
 
-                    upper_func = lambda a_string: a_string.upper()
+                    upper_func = lambda a_string, s: a_string.upper()
                     comp_three = cons_function_component(upper_func,
                                                          state_mutator = lambda s: s.append(upper_msg) or s)
 
-                    input_wire_func = lambda a: {'input': a}
+                    input_wire_func = lambda a, s: {'input': a}
                     input_wire = cons_wire(input_wire_func)
     
                     wire = cons_dictionary_wire({'output': 'input'})
 
-                    output_to_string_func = lambda a: str(a['output'])
+                    output_to_string_func = lambda a, s: str(a['output'])
                     to_upper_wire = cons_wire(output_to_string_func)
 
-                    output_wire_func = lambda a: str(a['output'])
+                    output_wire_func = lambda a, s: str(a['output'])
                     output_wire = cons_wire(output_wire_func)
 
                     pipeline = input_wire >> wire_components(comp_one, comp_two, wire) >> to_upper_wire >> comp_three
 
                     value = "hello world"
-                    target = (upper_func(value), [rev_msg_one, rev_msg_two, upper_msg])
+                    target = (upper_func(value, None), [rev_msg_one, rev_msg_two, upper_msg])
                     result = run_pipeline(pipeline, "hello world", list())
 
                     self.assertEquals(target, result)

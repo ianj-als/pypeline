@@ -44,15 +44,16 @@ def cons_subprocess_component(process_pipe,
         def state_function(s):
             # Transform the value into a line, that when
             # injected into stdin, the subprocess will understand
-            transformed_a = input_forming_function(a)
+            transformed_a = input_forming_function(a, s)
 
             # Communicate with the subprocess
-            print >> process_pipe.stdin, str(transformed_a).strip()
-            process_pipe.stdin.flush()
-            new_a = process_pipe.stdout.readline().strip()
+            if transformed_a is not None:
+                print >> process_pipe.stdin, str(transformed_a).strip()
+                process_pipe.stdin.flush()
+                new_a = process_pipe.stdout.readline().strip()
 
             # Parse the output from the subprocess
-            transformed_new_a = output_forming_function(new_a)
+            transformed_new_a = output_forming_function(new_a, s)
 
             # Mutate the state
             next_s = state_mutator(s) if state_mutator else s
@@ -77,13 +78,13 @@ def cons_function_component(function,
         def state_function(s):
             # Transform the value into a line, that when
             # injected into stdin, the subprocess will understand
-            transformed_a = input_forming_function(a) if input_forming_function else a
+            transformed_a = input_forming_function(a, s) if input_forming_function else a
 
             # Communicate with the subprocess
-            new_a = function(transformed_a)
+            new_a = function(transformed_a, s)
 
             # Parse the output from the subprocess
-            transformed_new_a = output_forming_function(new_a) if output_forming_function else new_a
+            transformed_new_a = output_forming_function(new_a, s) if output_forming_function else new_a
 
             # Mutate the state
             next_s = state_mutator(s) if state_mutator else s
@@ -99,14 +100,14 @@ def cons_wire(schema_conv_function):
     """Construct a wire. A wire is a Kleisli arrow that converts data from from one pipeline component's output schema to another pipeline component's input schema."""
     def bind_function(a):
         def state_function(s):
-            return (schema_conv_function(a), s)
+            return (schema_conv_function(a, s), s)
         return State(state_function)
     return KleisliArrow(return_, bind_function)
 
 
 def cons_dictionary_wire(conversions):
     """Construct a wire that converts between two dictionaries. The keys of the conversions dictionary are keys in the output dictionary, of the preceeding component, whose values will be used to populate a dictionary whose keys are the value of the conversions dictionary.\n\nE.g., output = {'int': 9, 'string': 'hello'}, and conversions = {'int': 'int_two', 'string': 'string_two'}, yields an input dictionary, to the next component, input = {'int_two': 9, 'string_two': 'hello'}."""
-    return cons_wire(lambda a: {conversions[key]: a[key] for key in conversions})
+    return cons_wire(lambda a, s: {conversions[key]: a[key] for key in conversions})
 
 
 def wire_components(component_one, component_two, wire):
