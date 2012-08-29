@@ -69,7 +69,7 @@ def cons_function_component(function,
                             input_forming_function = None,
                             output_forming_function = None,
                             state_mutator = None):
-    """\n\nAny other type of process will be assumed to be a callable object. Any input or output forming functions shall be called if provided. In this mode only the Kleisli arrow is returned."""
+    """Construct a component based on a function. Any input or output forming functions shall be called if provided. In this mode only the Kleisli arrow is returned."""
     if type(function) is not types.FunctionType and \
        type(function) is not types.MethodType:
         raise ValueError("Must be a function or method")
