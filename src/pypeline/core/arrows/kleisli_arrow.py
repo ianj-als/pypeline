@@ -45,10 +45,7 @@ class KleisliArrow(Arrow):
 
     # arr f = K(\b ->return(f b))
     def arr(self, f):
-        ka = KleisliArrow(self._patcher, None)
-        ka._func = lambda b: ka._patcher(f(b))
-
-        return ka
+        return KleisliArrow(self._patcher, lambda b: self._patcher(f(b)))
 
     # K f >>> K g = K(\b -> f b >>= g)
     def __rshift__(self, other):
@@ -77,15 +74,13 @@ class KleisliArrow(Arrow):
 
     # first (K f) = K(\(b, d) -> f b >>= \c -> return (c, d))
     def first(self):
-        ka = KleisliArrow(self._patcher, None)
-        ka._func = lambda t: self._func(t[0]) >= (lambda c: self._patcher((c, t[1])))
-        return ka
+        func = lambda t: self._func(t[0]) >= (lambda c: self._patcher((c, t[1])))
+        return KleisliArrow(self._patcher, func)
 
     # second (K f) = K(\(d, b) -> f b >>= \c -> return (d, c))
     def second(self):
-        ka = KleisliArrow(self._patcher, None)
-        ka._func = lambda t: self._func(t[1]) >= (lambda c: self._patcher((t[0], c)))
-        return ka
+        func = lambda t: self._func(t[1]) >= (lambda c: self._patcher((t[0], c)))
+        return KleisliArrow(self._patcher, None)
 
     @staticmethod
     def runKleisli(k, a):
