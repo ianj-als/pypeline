@@ -31,6 +31,8 @@ from pypeline.helpers.helpers import cons_subprocess_component, \
      cons_function_component, \
      cons_wire, \
      cons_dictionary_wire, \
+     cons_split_wire, \
+     cons_unsplit_wire, \
      cons_pipeline, \
      wire_components, \
      run_pipeline
@@ -61,7 +63,7 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
           return (arrow, pipe)
 
 
-     def test_pypeline_wth_subprocess_and_function_components(self):
+     def test_pypeline_with_subprocess_and_function_components(self):
           if sys.platform.startswith('win'):
                self.fail("Currently only this unit test is only supported on non-Windows platforms")
                
