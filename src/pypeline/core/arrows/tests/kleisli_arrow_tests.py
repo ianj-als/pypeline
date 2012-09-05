@@ -19,7 +19,7 @@
 import unittest
 
 from pypeline.core.arrows.function_arrow import FunctionArrow
-from pypeline.core.arrows.kleisli_arrow import KleisliArrow, split as kleisli_split
+from pypeline.core.arrows.kleisli_arrow import KleisliArrow, split as kleisli_split, unsplit as kleisli_unsplit
 from pypeline.core.types.just import Just, return_ as just_return
 from pypeline.core.types.state import State, return_ as state_return
 
@@ -117,9 +117,9 @@ class KleisliArrowUnitTest(unittest.TestCase):
     def test_split_with_maybe_monad(self):
         value = 7
         arrow = kleisli_split(just_return)
-        just = KleisliArrow.runKleisli(arrow, value)
+        result = KleisliArrow.runKleisli(arrow, value)
         target = Just((value, value))
-        self.assertEquals(target, just)
+        self.assertEquals(target, result)
 
 
     def test_split_with_state_monad(self):
@@ -128,4 +128,35 @@ class KleisliArrowUnitTest(unittest.TestCase):
         state = KleisliArrow.runKleisli(arrow, value)
         result = State.runState(state, list())
         target = ((value, value), list())
+        self.assertEquals(target, result)
+
+
+    def test_unsplit_with_maybe_monad(self):
+        value = 8
+
+        k1 = kleisli_split(just_return)
+
+        f = lambda x, y: x * y
+        k2 = kleisli_unsplit(just_return, f)
+
+        arrow = k1 >> k2
+        
+        result = KleisliArrow.runKleisli(arrow, value)
+        target = Just(f(value, value))
+        self.assertEquals(target, result)
+
+
+    def test_unsplit_with_state_monad(self):
+        value = 7
+
+        k1 = kleisli_split(state_return)
+
+        f = lambda x, y: x * y
+        k2 = kleisli_unsplit(state_return, f)
+
+        arrow = k1 >> k2
+
+        state = KleisliArrow.runKleisli(arrow, value)
+        result = State.runState(state, list())
+        target = (f(value, value), list())
         self.assertEquals(target, result)
