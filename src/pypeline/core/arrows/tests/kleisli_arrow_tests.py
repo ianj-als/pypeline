@@ -19,7 +19,7 @@
 import unittest
 
 from pypeline.core.arrows.function_arrow import FunctionArrow
-from pypeline.core.arrows.kleisli_arrow import KleisliArrow
+from pypeline.core.arrows.kleisli_arrow import KleisliArrow, split as kleisli_split
 from pypeline.core.types.just import Just, return_ as just_return
 from pypeline.core.types.state import State, return_ as state_return
 
@@ -73,3 +73,59 @@ class KleisliArrowUnitTest(unittest.TestCase):
         state = list()
         state_monad = KleisliArrow.runKleisli(arrow, value) # This is the value
         self.assertEquals((x(w(value)), [s1, s2]), State.runState(state_monad, state)) # This is the state
+
+
+    def test_triple_ampersand_with_maybe_monad(self):
+        w = lambda a: a * 2
+        wk = lambda a: Just(w(a))
+        k1 = KleisliArrow(just_return, wk)
+
+        x = lambda a: a - 9
+        xk = lambda a: Just(x(a))
+        k2 = KleisliArrow(just_return, xk)
+
+        arrow = k1 & k2
+
+        value = 7
+        target = Just((w(value), x(value)))
+        result = KleisliArrow.runKleisli(arrow, value)
+        self.assertEquals(target, result)
+
+
+    def test_triple_ampersand_with_state_monad(self):
+        s1 = "*2"
+        w = lambda a: a * 2
+        f = lambda a: State(lambda s: (w(a), s.append(s1) or s))
+        k1 = KleisliArrow(state_return, f)
+
+        s2 = "-9"
+        x = lambda a: a - 9
+        h = lambda a: State(lambda s: (x(a), s.append(s2) or s))
+        k2 = KleisliArrow(state_return, h)
+
+        arrow = k1 & k2
+
+        value = 5
+        state = list()
+        state_monad = KleisliArrow.runKleisli(arrow, value)
+
+        target = ((w(value), x(value)), [s1, s2])
+        result = State.runState(state_monad, state)
+        self.assertEquals(target, result)
+
+
+    def test_split_with_maybe_monad(self):
+        value = 7
+        arrow = kleisli_split(just_return)
+        just = KleisliArrow.runKleisli(arrow, value)
+        target = Just((value, value))
+        self.assertEquals(target, just)
+
+
+    def test_split_with_state_monad(self):
+        value = 7
+        arrow = kleisli_split(state_return)
+        state = KleisliArrow.runKleisli(arrow, value)
+        result = State.runState(state, list())
+        target = ((value, value), list())
+        self.assertEquals(target, result)

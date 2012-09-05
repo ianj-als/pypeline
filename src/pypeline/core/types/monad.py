@@ -17,6 +17,7 @@
 # along with Pypeline.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
 #
 # Base monad class
 #
@@ -34,7 +35,7 @@ class Monad(object):
     # Bind "Shove" operator
     # (>>) :: m a -> m b -> m b
     def __rshift__(self, other):
-        if not isinstance(other):
+        if not isinstance(other, Monad):
             raise ValueError("Must be a monadic type")
         return self >= (lambda _: other)
 

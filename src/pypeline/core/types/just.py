@@ -30,6 +30,11 @@ class Just(Maybe):
             raise ValueError("Value cannot be None")
         self._a = a
 
+    # return
+    # return :: a -> m a
+    def return_(self, a):
+        return return_(a)
+
     def __ge__(self, function):
         if type(function) is not types.FunctionType and \
            type(function) is not types.MethodType:

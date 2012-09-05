@@ -57,6 +57,24 @@ class KleisliArrow(Arrow):
 
         return KleisliArrow(other._patcher, lambda b: self._func(b) >= other._func)
 
+    # K f (***) K g = first K f >>> second K g
+    def __pow__(self, other):
+        if not isinstance(other, KleisliArrow):
+            raise ValueError("Must be an KleisliArrow")
+
+        return self.first() >> other.second()
+
+    # K f &&& K g = K $ \a -> do
+    #                           b <- f a
+    #                           c <- g a
+    #                           return (b,c)
+    def __and__(self, other):
+        if not isinstance(other, KleisliArrow):
+            raise ValueError("Must be an KleisliArrow")
+
+        func = lambda a: self._func(a) >= (lambda b: other._func(a) >= (lambda c: other._patcher((b, c))))
+        return KleisliArrow(other._patcher, func)
+
     # first (K f) = K(\(b, d) -> f b >>= \c -> return (c, d))
     def first(self):
         ka = KleisliArrow(self._patcher, None)
@@ -74,3 +92,17 @@ class KleisliArrow(Arrow):
         if not isinstance(k, KleisliArrow):
             raise ValueError("Arrow must be a Kleisli arrow")
         return k._func(a)
+
+
+#
+# Split
+#
+def split(patcher):
+    return KleisliArrow(patcher, lambda b: patcher((b, b)))
+
+
+#
+# Unsplit
+#
+def unsplit(patcher, op_func):
+    return KleisliArrow(patcher, lambda t: patcher(op_func(t[0], t[1])))

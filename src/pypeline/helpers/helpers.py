@@ -107,7 +107,15 @@ def cons_wire(schema_conv_function):
 
 def cons_dictionary_wire(conversions):
     """Construct a wire that converts between two dictionaries. The keys of the conversions dictionary are keys in the output dictionary, of the preceeding component, whose values will be used to populate a dictionary whose keys are the value of the conversions dictionary.\n\nE.g., output = {'int': 9, 'string': 'hello'}, and conversions = {'int': 'int_two', 'string': 'string_two'}, yields an input dictionary, to the next component, input = {'int_two': 9, 'string_two': 'hello'}."""
-    return cons_wire(lambda a, _: {conversions[key]: a[key] for key in conversions})
+    def conversion_function(a):
+        c = dict()
+        for key in conversions:
+            c[conversions[key]] = a[key]
+        return c
+
+    return cons_wire(lambda a, _: conversion_function(a))
+# Python 2.7 syntax
+# return cons_wire(lambda a, _: {conversions[key]: a[key] for key in conversions})
 
 
 def wire_components(component_one, component_two, wire):
