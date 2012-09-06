@@ -67,6 +67,7 @@ def cons_subprocess_component(process_pipe,
 
 def cons_batch_subprocess_component(process_pipe,
                                     input_feed_function,
+                                    output_function,
                                     state_mutator = None):
     """Construct a pipeline component using a Popen object. Batch subprocesses shall accept a single line on stdin. An input feed function shall be provided that yields objects, that once "stringyfied", are presented to the subprocess' stdin. This function takes tow arguments: the value and the state objects. It is the responsibility of the feed function implementer to yield an EOF if necessary. The returned object shall be a Kleisli arrow representing this pipeline component."""
     if not isinstance(process_pipe, subprocess.Popen):
@@ -93,11 +94,14 @@ def cons_batch_subprocess_component(process_pipe,
                     print >> process_pipe.stdin, str(transformed_a).strip()
                     process_pipe.stdin.flush()
 
+            # Get the new a
+            new_a = output_function(s)
+
             # Mutate the state
             next_s = state_mutator(s) if state_mutator else s
 
             # New value/state pair
-            return (transformed_new_a, next_s)
+            return (new_a, next_s)
         return State(state_function)
 
     return KleisliArrow(return_, bind_function)
