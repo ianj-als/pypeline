@@ -141,6 +141,14 @@ Construct a wire based on a function. The function should take two arguments: th
 
 Construct a wire based on a *conversion* dictionary. Assuming that dictionaries are used as values passed through a pipeline, or pipeline component, a dictionary based wire can be used. The dictionary, whose keys are the keys in the previous component's output are mapped to the conversion dictionary's values that are the keys of the next stage input dictionary.
 
+#### Constructing a Split Wire
+
+    helpers.cons_split_wire()
+
+#### Constructing an Unsplit Wire
+
+    helpers.cons_unsplit_wire(unsplit_func)
+
 #### Wire Up Two Pipeline Components
 
     helpers.wire_components(component_one, component_two, wire)
