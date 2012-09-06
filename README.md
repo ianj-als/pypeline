@@ -145,9 +145,15 @@ Construct a wire based on a *conversion* dictionary. Assuming that dictionaries 
 
     helpers.cons_split_wire()
 
+Constructs a wire that splits a single input into a pair.
+
 #### Constructing an Unsplit Wire
 
-    helpers.cons_unsplit_wire(unsplit_func)
+    helpers.cons_unsplit_wire(unsplit_function)
+
+Constructs a wire that takes a pair and combines them into a single value specified by the `unsplit_function`. The unsplit function takes to arguments: the top and bottom values.
+
+    unsplit_function :: b -> c -> d
 
 #### Wire Up Two Pipeline Components
 
