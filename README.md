@@ -154,3 +154,17 @@ Construct a wire based on a *conversion* dictionary. Assuming that dictionaries 
     helpers.wire_components(component_one, component_two, wire)
 
 Returns a pipeline component that is the composition of two components with a wire between them.
+
+### Component Composition Functions
+
+#### Constructing a Composed Component
+
+    helpers.cons_composed_component(first_component, second_component)
+
+Returns a components that is the composition of the `first_component` and the `second_component`.
+
+#### Constructing a Parallel Component
+
+    helpers.cons_parallel_component(top_component, bottom_component)
+
+Returns a component that will execute the two provided components in parallel. The input to the constructed component is a pair, whose first value is applied to the `top_component` and the second value is applied to the `bottom_component`. The constructed component`s output shall be a pair, whose first value is the output of the top component, and the second value is the output of the bottom component.

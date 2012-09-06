@@ -170,14 +170,24 @@ def cons_unsplit_wire(unsplit_func):
     return unsplit(return_, unsplit_func)
 
 
-def wire_components(component_one, component_two, wire):
-    """Wire two components together."""
+def cons_wired_components(component_one, component_two, wire):
+    """Wire two components together and return a component that is the composition of these components."""
     return component_one >> wire >> component_two
 
 
 def cons_pipeline(input_wire, component, output_wire):
     """Prepend an input wire and append an output wire to a component to build a pipeline."""
     return input_wire >> component >> output_wire
+
+
+def cons_composed_component(first_component, second_component):
+    """Compose two components and return a component that represents the composed computation."""
+    return first_component >> second_component
+
+
+def cons_parallel_component(top_component, bottom_component):
+    """Construct a component that will compute the provided components in parallel. The returned component takes a pair as input, see cons_split_wire(), and the component shall return a pair."""
+    return top_component ** bottom_component
 
 
 def __kleisli_wrapper(f):

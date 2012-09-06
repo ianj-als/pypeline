@@ -34,7 +34,9 @@ from pypeline.helpers.helpers import cons_subprocess_component, \
      cons_split_wire, \
      cons_unsplit_wire, \
      cons_pipeline, \
-     wire_components, \
+     cons_wired_components, \
+     cons_composed_component, \
+     cons_parallel_component, \
      run_pipeline
 
 
@@ -103,7 +105,10 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
                     output_wire_func = lambda a, s: str(a['output'])
                     output_wire = cons_wire(output_wire_func)
 
-                    pipeline = input_wire >> wire_components(comp_one, comp_two, wire) >> to_upper_wire >> comp_three
+                    pipeline = cons_pipeline(input_wire,
+                                             cons_wired_components(comp_one, comp_two, wire),
+                                             to_upper_wire)
+                    pipeline = cons_composed_component(pipeline, comp_three)
 
                     value = "hello world"
                     target = (upper_func(value, None), [rev_msg_one, rev_msg_two, upper_msg])
@@ -144,13 +149,15 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
                     output_func,
                     state_mutator = lambda s: s.append(rev_msg_two) or s)
 
-               parallel_reverse_comp = comp_one ** comp_two
+               parallel_reverse_comp = cons_parallel_component(comp_one, comp_two)
                split_wire = cons_split_wire()
                unsplit_func = lambda a, b: {'subprocess_output' : a['output'],
                                             'function_output': b['output']}
                unsplit_wire = cons_unsplit_wire(unsplit_func)
                input_wire = cons_wire(lambda a, s: {'input': a})
-               pipeline = input_wire >> split_wire >> parallel_reverse_comp >> unsplit_wire
+               pipeline = cons_pipeline(input_wire,
+                                        cons_composed_component(split_wire, parallel_reverse_comp),
+                                        unsplit_wire)
 
                value = "hello world"
                result = run_pipeline(pipeline, "hello world", list())
