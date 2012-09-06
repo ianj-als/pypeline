@@ -111,6 +111,22 @@ The output from the previous component is applied to the input forming function 
 
 The state mutator function shall take one argument, the state object, and return a mutated state object if desired. If no state mutator function is specified the state flows through the component unchanged.
 
+#### Constructing a Batch Subprocess Pipeline Component
+
+    helpers.cons_batch_subprocess_component(process_pipe,
+                                            input_feed_function,
+                                            output_function,
+                                            state_mutator = None)
+
+Construct a pipeline component whose computation requires many values to be sent to the sub-process. An input feed function is required that shall provide the values for the computation. This function shall be a generator that takes two arguments: the value, and the state. This function shall yield objects, that once "stringyfied", shall be sent, as one line, to the `stdin` of the sub-process. The `stdout` is ignored.
+
+The output function generates the value that shall be passed to the subsequent pipeline component.
+
+    input_feed_function :: a -> s -> b
+    output_function :: s -> c
+
+The state mutator function shall take one argument, the state object, and return a mutated state of object if desired. If no state mutator function is specified the stat flows through the component unchanged.
+
 ### Wire Functions
 
 #### Constructing a Function Based Wire
