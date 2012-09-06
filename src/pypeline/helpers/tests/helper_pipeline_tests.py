@@ -116,3 +116,48 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
           finally:
                comp_proc_one[1].terminate()
                comp_proc_one[1].wait()
+
+
+     def test_pypeline_with_split_and_unsplit_wires(self):
+          if sys.platform.startswith('win'):
+               self.fail("Currently only this unit test is only supported on non-Windows platforms")
+               
+          rev_msg_one = "reverse(subprocess)"
+          rev_msg_two = "reverse(function)"
+
+          reverse_command = os.path.join("src", "pypeline", "helpers", "tests", "reverse.sh")
+
+          reverse_func = lambda a, s: a[::-1]
+          input_func = lambda a, s: str(a['input'])
+          output_func = lambda a, s: {'output': str(a)}
+
+          comp_proc_one = PypelineHelperFunctionUnitTest.__cons_and_start_subprocess_component(
+               reverse_command, tuple(),
+               input_func,
+               output_func,
+               state_mutator = lambda s: s.append(rev_msg_one) or s)
+          try:
+               comp_one = comp_proc_one[0]
+               comp_two = cons_function_component(
+                    reverse_func,
+                    input_func,
+                    output_func,
+                    state_mutator = lambda s: s.append(rev_msg_two) or s)
+
+               parallel_reverse_comp = comp_one ** comp_two
+               split_wire = cons_split_wire()
+               unsplit_func = lambda a, b: {'subprocess_output' : a['output'],
+                                            'function_output': b['output']}
+               unsplit_wire = cons_unsplit_wire(unsplit_func)
+               input_wire = cons_wire(lambda a, s: {'input': a})
+               pipeline = input_wire >> split_wire >> parallel_reverse_comp >> unsplit_wire
+
+               value = "hello world"
+               result = run_pipeline(pipeline, "hello world", list())
+               target_dict = {'output': reverse_func(value, None)}
+               target_value = unsplit_func(target_dict, target_dict)
+               target = (target_value, [rev_msg_one, rev_msg_two])
+               self.assertEquals(target, result)
+          finally:
+               comp_proc_one[1].terminate()
+               comp_proc_one[1].wait()

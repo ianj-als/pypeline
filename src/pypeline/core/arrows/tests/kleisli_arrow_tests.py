@@ -75,6 +75,71 @@ class KleisliArrowUnitTest(unittest.TestCase):
         self.assertEquals((x(w(value)), [s1, s2]), State.runState(state_monad, state)) # This is the state
 
 
+    def test_first_with_maybe_monad(self):
+        w = lambda a: a * 2
+        wk = lambda a: Just(w(a))
+        arrow = KleisliArrow(just_return, wk).first()
+
+        value = 9
+        result = KleisliArrow.runKleisli(arrow, (value, value))
+        target = Just((w(value), value))
+        self.assertEquals(target, result)
+
+
+    def test_second_with_maybe_monad(self):
+        w = lambda a: a * 2
+        wk = lambda a: Just(w(a))
+        arrow = KleisliArrow(just_return, wk).second()
+
+        value = 9
+        result = KleisliArrow.runKleisli(arrow, (value, value))
+        target = Just((value, w(value)))
+        self.assertEquals(target, result)
+
+
+    def test_first_with_state_monad(self):
+        w = lambda a: a * 2
+        s1 = "*2"
+        wk = lambda a: State(lambda s: (w(a), s.append(s1) or s))
+        arrow = KleisliArrow(state_return, wk).first()
+
+        value = 9
+        state = KleisliArrow.runKleisli(arrow, (value, value))
+        result = State.runState(state, list())
+        target = ((w(value), value), [s1])
+        self.assertEquals(target, result)
+
+
+    def test_second_with_state_monad(self):
+        w = lambda a: a * 2
+        s1 = "*2"
+        wk = lambda a: State(lambda s: (w(a), s.append(s1) or s))
+        arrow = KleisliArrow(state_return, wk).second()
+
+        value = 9
+        state = KleisliArrow.runKleisli(arrow, (value, value))
+        result = State.runState(state, list())
+        target = ((value, w(value)), [s1])
+        self.assertEquals(target, result)
+
+
+    def test_triple_asterisk_with_maybe_monad(self):
+        w = lambda a: a * 2
+        wk = lambda a: Just(w(a))
+        k1 = KleisliArrow(just_return, wk)
+
+        x = lambda a: a - 9
+        xk = lambda a: Just(x(a))
+        k2 = KleisliArrow(just_return, xk)
+
+        arrow = k1 ** k2
+
+        value = 7
+        target = Just((w(value), x(value)))
+        result = KleisliArrow.runKleisli(arrow, (value, value))
+        self.assertEquals(target, result)
+
+
     def test_triple_ampersand_with_maybe_monad(self):
         w = lambda a: a * 2
         wk = lambda a: Just(w(a))

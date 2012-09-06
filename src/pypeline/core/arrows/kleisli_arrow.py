@@ -80,7 +80,7 @@ class KleisliArrow(Arrow):
     # second (K f) = K(\(d, b) -> f b >>= \c -> return (d, c))
     def second(self):
         func = lambda t: self._func(t[1]) >= (lambda c: self._patcher((t[0], c)))
-        return KleisliArrow(self._patcher, None)
+        return KleisliArrow(self._patcher, func)
 
     @staticmethod
     def runKleisli(k, a):
