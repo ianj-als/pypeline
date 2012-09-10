@@ -66,16 +66,16 @@ def cons_subprocess_component(process_pipe,
 
 
 def cons_batch_subprocess_component(process_pipe,
-                                    input_feed_function,
+                                    input_generator_function,
                                     output_function,
                                     state_mutator = None):
-    """Construct a pipeline component using a Popen object. Batch subprocesses shall accept a single line on stdin. An input feed function shall be provided that yields objects, that once "stringyfied", are presented to the subprocess' stdin. This function takes tow arguments: the value and the state objects. It is the responsibility of the feed function implementer to yield an EOF if necessary. The returned object shall be a Kleisli arrow representing this pipeline component."""
+    """Construct a pipeline component using a Popen object. Batch subprocesses shall accept a single line on stdin. An input generator function shall be provided that yields objects, that once "stringyfied", are presented to the subprocess' stdin. This function takes tow arguments: the value and the state objects. It is the responsibility of the feed function implementer to yield an EOF if necessary. The returned object shall be a Kleisli arrow representing this pipeline component."""
     if not isinstance(process_pipe, subprocess.Popen):
         raise ValueError("Must be a Popen process")
 
-    if input_feed_function is None:
+    if input_generator_function is None or output_function is None:
         raise ValueError("Subprocess components must specify both " +
-                         "input and output forming functions")
+                         "input generator and output functions")
 
     #
     # This bind function handles the 'process'
@@ -88,14 +88,14 @@ def cons_batch_subprocess_component(process_pipe,
             # and feed it to the underlying subprocess.
             # This function shall return a value, that when stringyfied and
             # injected into stdin, the subprocess will understand
-            for transformed_a in input_feed_function(a, s):
+            for transformed_a in input_generator_function(a, s):
                 # Communicate with the subprocess
                 if transformed_a is not None:
                     print >> process_pipe.stdin, str(transformed_a).strip()
                     process_pipe.stdin.flush()
 
             # Get the new a
-            new_a = output_function(s)
+            new_a = output_function(a, s)
 
             # Mutate the state
             next_s = state_mutator(s) if state_mutator else s
