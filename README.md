@@ -125,7 +125,7 @@ The output function generates the value that shall be passed to the subsequent p
     input_feed_function :: a -> s -> b
     output_function :: a -> s -> c
 
-The state mutator function shall take one argument, the state object, and return a mutated state of object if desired. If no state mutator function is specified the stat flows through the component unchanged.
+The state mutator function shall take one argument, the state object, and return a mutated state of object if desired. If no state mutator function is specified the state flows through the component unchanged.
 
 ### Wire Functions
 
