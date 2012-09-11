@@ -29,7 +29,10 @@ class Nothing(Maybe):
         if cls._instance is None:
             cls._instance = super(Nothing, cls).__new__(cls, *args, **kwargs)
         return cls._instance
-    
+
+    def return_(self, a):
+        return return_(a)
+
     def __ge__(self, function):
         return Nothing()
 

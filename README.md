@@ -111,6 +111,22 @@ The output from the previous component is applied to the input forming function 
 
 The state mutator function shall take one argument, the state object, and return a mutated state object if desired. If no state mutator function is specified the state flows through the component unchanged.
 
+#### Constructing a Batch Subprocess Pipeline Component
+
+    helpers.cons_batch_subprocess_component(process_pipe,
+                                            input_generator_function,
+                                            output_function,
+                                            state_mutator = None)
+
+Construct a pipeline component whose computation requires many values to be sent to the sub-process. An input generator function is required that shall provide the values for the computation. This function shall be a generator that takes two arguments: the value, and the state. This function shall yield objects, that once "stringyfied", shall be sent, as one line, to the `stdin` of the sub-process. The `stdout` of the sub-process is ignored.
+
+The output function generates the value that shall be passed to the subsequent pipeline component. This function shall take two arguments: the input value to the components, and the state object.
+
+    input_feed_function :: a -> s -> b
+    output_function :: a -> s -> c
+
+The state mutator function shall take one argument, the state object, and return a mutated state of object if desired. If no state mutator function is specified the state flows through the component unchanged.
+
 ### Wire Functions
 
 #### Constructing a Function Based Wire
@@ -125,8 +141,36 @@ Construct a wire based on a function. The function should take two arguments: th
 
 Construct a wire based on a *conversion* dictionary. Assuming that dictionaries are used as values passed through a pipeline, or pipeline component, a dictionary based wire can be used. The dictionary, whose keys are the keys in the previous component's output are mapped to the conversion dictionary's values that are the keys of the next stage input dictionary.
 
+#### Constructing a Split Wire
+
+    helpers.cons_split_wire()
+
+Constructs a wire that splits a single input into a pair.
+
+#### Constructing an Unsplit Wire
+
+    helpers.cons_unsplit_wire(unsplit_function)
+
+Constructs a wire that takes a pair and combines them into a single value specified by the `unsplit_function`. The unsplit function takes two arguments: the top and bottom values.
+
+    unsplit_function :: b -> c -> d
+
 #### Wire Up Two Pipeline Components
 
     helpers.wire_components(component_one, component_two, wire)
 
 Returns a pipeline component that is the composition of two components with a wire between them.
+
+### Component Composition Functions
+
+#### Constructing a Composed Component
+
+    helpers.cons_composed_component(first_component, second_component)
+
+Returns a components that is the composition of the `first_component` and the `second_component`.
+
+#### Constructing a Parallel Component
+
+    helpers.cons_parallel_component(top_component, bottom_component)
+
+Returns a component that will execute the two provided components in parallel. The input to the constructed component is a pair, whose first value is applied to the `top_component` and the second value is applied to the `bottom_component`. The constructed component`s output shall be a pair, whose first value is the output of the top component, and the second value is the output of the bottom component.

@@ -41,6 +41,11 @@ class State(Monad):
         else:
             self._func = lambda s: (a, s)
 
+    # return
+    # return :: a -> m a
+    def return_(self, a):
+        return return_(a)
+
     # (>>=) :: State s a -> (a -> State s b) -> State s b
     # (State h) >>= f = State $ \s -> let (a, newState) = h s
     #                                     (State g) = f a

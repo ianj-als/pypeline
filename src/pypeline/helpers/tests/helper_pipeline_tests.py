@@ -31,8 +31,12 @@ from pypeline.helpers.helpers import cons_subprocess_component, \
      cons_function_component, \
      cons_wire, \
      cons_dictionary_wire, \
+     cons_split_wire, \
+     cons_unsplit_wire, \
      cons_pipeline, \
-     wire_components, \
+     cons_wired_components, \
+     cons_composed_component, \
+     cons_parallel_component, \
      run_pipeline
 
 
@@ -61,7 +65,7 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
           return (arrow, pipe)
 
 
-     def test_pypeline_wth_subprocess_and_function_components(self):
+     def test_pypeline_with_subprocess_and_function_components(self):
           if sys.platform.startswith('win'):
                self.fail("Currently only this unit test is only supported on non-Windows platforms")
                
@@ -101,7 +105,10 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
                     output_wire_func = lambda a, s: str(a['output'])
                     output_wire = cons_wire(output_wire_func)
 
-                    pipeline = input_wire >> wire_components(comp_one, comp_two, wire) >> to_upper_wire >> comp_three
+                    pipeline = cons_pipeline(input_wire,
+                                             cons_wired_components(comp_one, comp_two, wire),
+                                             to_upper_wire)
+                    pipeline = cons_composed_component(pipeline, comp_three)
 
                     value = "hello world"
                     target = (upper_func(value, None), [rev_msg_one, rev_msg_two, upper_msg])
@@ -111,6 +118,53 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
                finally:
                     comp_proc_two[1].terminate()
                     comp_proc_two[1].wait()
+          finally:
+               comp_proc_one[1].terminate()
+               comp_proc_one[1].wait()
+
+
+     def test_pypeline_with_split_and_unsplit_wires(self):
+          if sys.platform.startswith('win'):
+               self.fail("Currently only this unit test is only supported on non-Windows platforms")
+               
+          rev_msg_one = "reverse(subprocess)"
+          rev_msg_two = "reverse(function)"
+
+          reverse_command = os.path.join("src", "pypeline", "helpers", "tests", "reverse.sh")
+
+          reverse_func = lambda a, s: a[::-1]
+          input_func = lambda a, s: str(a['input'])
+          output_func = lambda a, s: {'output': str(a)}
+
+          comp_proc_one = PypelineHelperFunctionUnitTest.__cons_and_start_subprocess_component(
+               reverse_command, tuple(),
+               input_func,
+               output_func,
+               state_mutator = lambda s: s.append(rev_msg_one) or s)
+          try:
+               comp_one = comp_proc_one[0]
+               comp_two = cons_function_component(
+                    reverse_func,
+                    input_func,
+                    output_func,
+                    state_mutator = lambda s: s.append(rev_msg_two) or s)
+
+               parallel_reverse_comp = cons_parallel_component(comp_one, comp_two)
+               split_wire = cons_split_wire()
+               unsplit_func = lambda a, b: {'subprocess_output' : a['output'],
+                                            'function_output': b['output']}
+               unsplit_wire = cons_unsplit_wire(unsplit_func)
+               input_wire = cons_wire(lambda a, s: {'input': a})
+               pipeline = cons_pipeline(input_wire,
+                                        cons_composed_component(split_wire, parallel_reverse_comp),
+                                        unsplit_wire)
+
+               value = "hello world"
+               result = run_pipeline(pipeline, "hello world", list())
+               target_dict = {'output': reverse_func(value, None)}
+               target_value = unsplit_func(target_dict, target_dict)
+               target = (target_value, [rev_msg_one, rev_msg_two])
+               self.assertEquals(target, result)
           finally:
                comp_proc_one[1].terminate()
                comp_proc_one[1].wait()

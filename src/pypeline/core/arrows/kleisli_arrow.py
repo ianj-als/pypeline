@@ -45,10 +45,7 @@ class KleisliArrow(Arrow):
 
     # arr f = K(\b ->return(f b))
     def arr(self, f):
-        ka = KleisliArrow(self._patcher, None)
-        ka._func = lambda b: ka._patcher(f(b))
-
-        return ka
+        return KleisliArrow(self._patcher, lambda b: self._patcher(f(b)))
 
     # K f >>> K g = K(\b -> f b >>= g)
     def __rshift__(self, other):
@@ -57,20 +54,50 @@ class KleisliArrow(Arrow):
 
         return KleisliArrow(other._patcher, lambda b: self._func(b) >= other._func)
 
+    # K f (***) K g = first K f >>> second K g
+    def __pow__(self, other):
+        if not isinstance(other, KleisliArrow):
+            raise ValueError("Must be an KleisliArrow")
+
+        return self.first() >> other.second()
+
+    # K f &&& K g = K $ \a -> do
+    #                           b <- f a
+    #                           c <- g a
+    #                           return (b,c)
+    def __and__(self, other):
+        if not isinstance(other, KleisliArrow):
+            raise ValueError("Must be an KleisliArrow")
+
+        func = lambda a: self._func(a) >= (lambda b: other._func(a) >= (lambda c: other._patcher((b, c))))
+        return KleisliArrow(other._patcher, func)
+
     # first (K f) = K(\(b, d) -> f b >>= \c -> return (c, d))
     def first(self):
-        ka = KleisliArrow(self._patcher, None)
-        ka._func = lambda t: self._func(t[0]) >= (lambda c: self._patcher((c, t[1])))
-        return ka
+        func = lambda t: self._func(t[0]) >= (lambda c: self._patcher((c, t[1])))
+        return KleisliArrow(self._patcher, func)
 
     # second (K f) = K(\(d, b) -> f b >>= \c -> return (d, c))
     def second(self):
-        ka = KleisliArrow(self._patcher, None)
-        ka._func = lambda t: self._func(t[1]) >= (lambda c: self._patcher((t[0], c)))
-        return ka
+        func = lambda t: self._func(t[1]) >= (lambda c: self._patcher((t[0], c)))
+        return KleisliArrow(self._patcher, func)
 
     @staticmethod
     def runKleisli(k, a):
         if not isinstance(k, KleisliArrow):
             raise ValueError("Arrow must be a Kleisli arrow")
         return k._func(a)
+
+
+#
+# Split
+#
+def split(patcher):
+    return KleisliArrow(patcher, lambda b: patcher((b, b)))
+
+
+#
+# Unsplit
+#
+def unsplit(patcher, op_func):
+    return KleisliArrow(patcher, lambda t: patcher(op_func(t[0], t[1])))
