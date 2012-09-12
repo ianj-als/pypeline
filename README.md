@@ -27,8 +27,9 @@ To view setup help:
 
 This Python implementation provides the following arrows:
  * Function arrow,
- * Function choice arrow, and
- * Kleisli arrow (It is expected that the Kleisli choice arrow will be implemented shortly).
+ * Function choice arrow,
+ * Kleisli arrow, and
+ * Kleisli choice arrow.
 
 And also provides helper functions that lift the arrow abstraction to a *pipeline component* level, in order that pipelines can be constructed without "seeing" an arrow directly. However, if the programmer wishes, the underlying arrow classes can be used to build pipelines with or without the helper functions.
 
