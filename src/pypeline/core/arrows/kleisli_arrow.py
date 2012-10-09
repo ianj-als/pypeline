@@ -40,6 +40,7 @@ class KleisliArrow(Arrow):
                   not isinstance(f, types.MethodType)):
             raise ValueError("Function must be a function")
 
+        Arrow.__init__(self)
         self._patcher = patcher
         self._func = f
 

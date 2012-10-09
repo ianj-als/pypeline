@@ -48,6 +48,7 @@ class FunctionArrow(Arrow):
            type(func) is not types.MethodType:
             raise ValueError("Must be a function or method")
 
+        Arrow.__init__(self)
         self._func = func
 
     #
