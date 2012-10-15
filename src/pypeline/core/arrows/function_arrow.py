@@ -29,7 +29,7 @@ from pypeline.core.arrows.arrow import Arrow
 # input (&&&) is the bitwise and operator (&).
 # WATCH OUT FOR OPERATOR PRECEDENCE!!!
 #
-# ** is higher than >> is higher than than &
+# ** is higher than >> is higher than &
 #
 #
 # See:
