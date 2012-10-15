@@ -44,7 +44,7 @@ Pipelines can be constructed using the helpers function in the [pypeline.helpers
  2. Pipeline components, and
  3. Wires.
 
-A pipeline is a series of pipeline components that are, optionally, connected with wires. Pipeline components can be constructed with functions, or with a `subprocess.Popen` object; this enables pipelines to be built that call externally running programs. Currently, the protocol for communicating with subprocesses is via stdin and stdout. A single line is fed into the subprocess on stdin and it shall respond with a single line on it's stdout.
+A pipeline is a series of pipeline components that are, optionally, connected with wires. Pipeline components are built from functions.
 
 Wires can be used to convert the output of one pipeline component into the input of the succeeding pipeline component. Wires can be constructed using a function or a dictionary. Assuming a pipeline component's output is a dictionary and the next component accepts, as input, a dictionary, a wire, constructed from a dictionary, maps values in the output dictionary into a dictionary which is to be used as an input. However, a wire constructed from a function can create arbitrary output to input mappings.
 
@@ -95,38 +95,6 @@ The input and output forming functions shall take two arguments: a value and the
     output_forming_function :: a -> s -> b
 
 The state mutator function shall take one argument, the state object, and return a mutated state object if desired. The state mutator function is applied after all the other functions have been applied. If no state mutator function is specified the state flows through the component unchanged.
-
-#### Constructing a Subprocess Based Pipeline Component
-
-    helpers.cons_subprocess_component(process_pipe,
-                                      input_forming_function,
-                                      output_forming_function,
-                                      state_mutator_function = None)
-
-Construct a pipeline component whose computation will be achieved using a sub-process. Input and output forming functions should generate the single line given to the `stdin` of the sub-process, and parse out the single line written to the sub-process' `stdout` respectively. An optional state mutator function can be provided to alter the state object passed into one of the pipeline run/evaluating/executing functions.
-
-The output from the previous component is applied to the input forming function and the "stringyfied" resultant object is written to the sub-process' `stdin`. Once the sub-process has responded a single line, from `stdout`, is applied to the output forming function. This function is to parse the response and the resultant object is passed to the subsequent pipeline component, or wire. The input and output forming functions shall take two arguments: a value and the state object. Or,
-
-    input_forming_function :: a -> s -> b
-    output_forming_function :: a -> s -> b
-
-The state mutator function shall take one argument, the state object, and return a mutated state object if desired. If no state mutator function is specified the state flows through the component unchanged.
-
-#### Constructing a Batch Subprocess Pipeline Component
-
-    helpers.cons_batch_subprocess_component(process_pipe,
-                                            input_generator_function,
-                                            output_function,
-                                            state_mutator = None)
-
-Construct a pipeline component whose computation requires many values to be sent to the sub-process. An input generator function is required that shall provide the values for the computation. This function shall be a generator that takes two arguments: the value, and the state. This function shall yield objects, that once "stringyfied", shall be sent, as one line, to the `stdin` of the sub-process. The `stdout` of the sub-process is ignored.
-
-The output function generates the value that shall be passed to the subsequent pipeline component. This function shall take two arguments: the input value to the components, and the state object.
-
-    input_feed_function :: a -> s -> b
-    output_function :: a -> s -> c
-
-The state mutator function shall take one argument, the state object, and return a mutated state of object if desired. If no state mutator function is specified the state flows through the component unchanged.
 
 ### Wire Functions
 

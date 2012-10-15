@@ -27,8 +27,7 @@ import subprocess
 import sys
 import unittest
 
-from pypeline.helpers.helpers import cons_subprocess_component, \
-     cons_function_component, \
+from pypeline.helpers.helpers import cons_function_component, \
      cons_wire, \
      cons_dictionary_wire, \
      cons_split_wire, \
@@ -40,7 +39,7 @@ from pypeline.helpers.helpers import cons_subprocess_component, \
      run_pipeline
 
 
-class PypelineHelperFunctionUnitTest(unittest.TestCase):
+class PypelineHelperUnitTest(unittest.TestCase):
      @staticmethod
      def __cons_and_start_subprocess_component(command,
                                                arguments,
@@ -52,11 +51,22 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
           pipe = subprocess.Popen(args,
                                   stdin = subprocess.PIPE,
                                   stdout = subprocess.PIPE)
+
+          def get_process_function(process_pipe):
+               def process_function(a, s):
+                    new_a = None
+                    if a:
+                         print >> process_pipe.stdin, str(a).strip()
+                         process_pipe.stdin.flush()
+                         new_a = process_pipe.stdout.readline().strip()
+                    return new_a
+               return process_function
+
           try:
-               arrow = cons_subprocess_component(pipe,
-                                                 input_forming_func,
-                                                 output_forming_func,
-                                                 state_mutator)
+               arrow = cons_function_component(get_process_function(pipe),
+                                               input_forming_func,
+                                               output_forming_func,
+                                               state_mutator)
           except Exception, ex:
                pipe.terminate()
                pipe.wait()
@@ -75,13 +85,13 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
 
           reverse_command = os.path.join("src", "pypeline", "helpers", "tests", "reverse.sh")
 
-          comp_proc_one = PypelineHelperFunctionUnitTest.__cons_and_start_subprocess_component(
+          comp_proc_one = PypelineHelperUnitTest.__cons_and_start_subprocess_component(
                reverse_command, tuple(),
                lambda a, s: str(a['input']),
                lambda a, s: {'output': str(a)},
                state_mutator = lambda s: s.append(rev_msg_one) or s)
           try:
-               comp_proc_two = PypelineHelperFunctionUnitTest.__cons_and_start_subprocess_component(
+               comp_proc_two = PypelineHelperUnitTest.__cons_and_start_subprocess_component(
                     reverse_command, tuple(),
                     lambda a, s: str(a['input']),
                     lambda a, s: {'output': str(a)},
@@ -136,7 +146,7 @@ class PypelineHelperFunctionUnitTest(unittest.TestCase):
           input_func = lambda a, s: str(a['input'])
           output_func = lambda a, s: {'output': str(a)}
 
-          comp_proc_one = PypelineHelperFunctionUnitTest.__cons_and_start_subprocess_component(
+          comp_proc_one = PypelineHelperUnitTest.__cons_and_start_subprocess_component(
                reverse_command, tuple(),
                input_func,
                output_func,

@@ -22,7 +22,7 @@ from pypeline.core.types.state import State, return_
 from pypeline.helpers import helpers
 
 
-class WrapperState(object):
+class WrappedState(object):
     def __init__(self, executor, state):
         self.executor = executor
         self.state = state
@@ -33,19 +33,34 @@ def cons_function_component(function,
                             output_forming_function = None,
                             state_mutator = None):
     """Construct a component based on a function. Any input or output forming functions shall be called if provided. A Kleisli arrow is returned."""
-    def get_component_function_wrapper(inner_function):
-      def component_function_wrapper(future, wrapper_state):
-        value = future.result()
-        this_future = wrapper_state.executor.submit(inner_function, value, wrapper_state.state)
-        return this_future
-      return component_function_wrapper
+    def bind_function(future):
+        def state_function(wrapped_state):
+            # Unpack state
+            state = wrapped_state.state
 
-    component = helpers.cons_function_component(get_component_function_wrapper(function),
-                                                input_forming_function,
-                                                output_forming_function,
-                                                state_mutator)
+            def do_transformation(a, s):
+                # Transform the input
+                transformed_a = input_forming_function(a, state) if input_forming_function else a
 
-    return component
+                # Apply
+                new_a = function(transformed_a, state)
+
+                # Transform the output of the function
+                transformed_new_a = output_forming_function(new_a, state) if output_forming_function else new_a
+
+                return transformed_new_a
+
+            # Execute
+            new_future = wrapped_state.executor.submit(do_transformation, future.result(), state)
+
+            # Mutate the state
+            next_state = state_mutator(state) if state_mutator else state
+
+            # New value/state pair
+            return (new_future, WrappedState(wrapped_state.executor, next_state))
+        return State(state_function)
+
+    return KleisliArrow(return_, bind_function)
 
 
 def cons_wire(schema_conv_function):
@@ -101,7 +116,8 @@ def __kleisli_wrapper(f):
         future = Future()
         future.set_result(input)
         state_monad = KleisliArrow.runKleisli(pipeline, future)
-        return f(state_monad, WrapperState(executor, state))
+        output = f(state_monad, WrappedState(executor, state))
+        return (output[0].result(), output[1].state)
     return wrapper
 
 

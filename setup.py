@@ -34,6 +34,7 @@ setup(
     url = "http://www.appliedlanguage.com",
 
     setup_requires = ['nose>=1.0'],
+    install_requires = ['futures>=2.1.3'],
 
     test_suite = 'nose.collector',
 )

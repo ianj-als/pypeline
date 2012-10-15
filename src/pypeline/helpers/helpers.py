@@ -23,99 +23,11 @@ from pypeline.core.arrows.kleisli_arrow import KleisliArrow, split, unsplit
 from pypeline.core.types.state import State, return_
 
 
-def cons_subprocess_component(process_pipe,
-                              input_forming_function,
-                              output_forming_function,
-                              state_mutator = None):
-    """Construct a pipeline component using a Popen object. Subprocesses shall accept a single line on stdin and generate a single line on stdout. Input and output forming functions shall be provided to generate and parse single lines of text that will be used to communicate with the subprocess. The returned object shall be a Kleisli arrow representing this pipeline component."""
-    if not isinstance(process_pipe, subprocess.Popen):
-        raise ValueError("Must be a Popen process")
-
-    if input_forming_function is None or \
-       output_forming_function is None:
-        raise ValueError("Subprocess components must specify both " +
-                         "input and output forming functions")
-
-    #
-    # This bind function handles the 'process'
-    # being a subprocess.
-    #
-    def bind_function(a):
-        def state_function(s):
-            # Transform the value into a line, that when
-            # injected into stdin, the subprocess will understand
-            transformed_a = input_forming_function(a, s)
-
-            # Communicate with the subprocess
-            if transformed_a is not None:
-                print >> process_pipe.stdin, str(transformed_a).strip()
-                process_pipe.stdin.flush()
-                new_a = process_pipe.stdout.readline().strip()
-
-            # Parse the output from the subprocess
-            transformed_new_a = output_forming_function(new_a, s)
-
-            # Mutate the state
-            next_s = state_mutator(s) if state_mutator else s
-
-            # New value/state pair
-            return (transformed_new_a, next_s)
-        return State(state_function)
-
-    return KleisliArrow(return_, bind_function)
-
-
-def cons_batch_subprocess_component(process_pipe,
-                                    input_generator_function,
-                                    output_function,
-                                    state_mutator = None):
-    """Construct a pipeline component using a Popen object. Batch subprocesses shall accept a single line on stdin. An input generator function shall be provided that yields objects, that once "stringyfied", are presented to the subprocess' stdin. This function takes tow arguments: the value and the state objects. It is the responsibility of the feed function implementer to yield an EOF if necessary. The returned object shall be a Kleisli arrow representing this pipeline component."""
-    if not isinstance(process_pipe, subprocess.Popen):
-        raise ValueError("Must be a Popen process")
-
-    if input_generator_function is None or output_function is None:
-        raise ValueError("Subprocess components must specify both " +
-                         "input generator and output functions")
-
-    #
-    # This bind function handles the 'process'
-    # being a subprocess.
-    #
-    def bind_function(a):
-        def state_function(s):
-            # The input forming function is an iterable, so
-            # request every value this function will return
-            # and feed it to the underlying subprocess.
-            # This function shall return a value, that when stringyfied and
-            # injected into stdin, the subprocess will understand
-            for transformed_a in input_generator_function(a, s):
-                # Communicate with the subprocess
-                if transformed_a is not None:
-                    print >> process_pipe.stdin, str(transformed_a).strip()
-                    process_pipe.stdin.flush()
-
-            # Get the new a
-            new_a = output_function(a, s)
-
-            # Mutate the state
-            next_s = state_mutator(s) if state_mutator else s
-
-            # New value/state pair
-            return (new_a, next_s)
-        return State(state_function)
-
-    return KleisliArrow(return_, bind_function)
-
-
 def cons_function_component(function,
                             input_forming_function = None,
                             output_forming_function = None,
                             state_mutator = None):
     """Construct a pipeline component whose computation will be achieved using a function. Optional input and output forming functions pre- and post-process the input and output values to and from the function. An optional state mutator function can be provided to alter the state object passed into one of the pipeline run/evaluating/executing functions. A Kleisli arrow is returned."""
-    if type(function) is not types.FunctionType and \
-       type(function) is not types.MethodType:
-        raise ValueError("Must be a function or method")
-
     def bind_function(a):
         def state_function(s):
             # Transform the input
@@ -204,6 +116,7 @@ def exec_pipeline(state_monad, state):
     return State.execState(state_monad, state)
 
 
-def get_dictionary_conversion_function(conversion):
+def get_dictionary_conversion_function(conversions):
     """Returns a function that completes the dictionary conversions as part of a wire."""
     return lambda a, _: {conversions[key]: a[key] for key in conversions}
+
