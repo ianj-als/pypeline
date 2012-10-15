@@ -111,7 +111,7 @@ def cons_function_component(function,
                             input_forming_function = None,
                             output_forming_function = None,
                             state_mutator = None):
-    """\n\nAny other type of process will be assumed to be a callable object. Any input or output forming functions shall be called if provided. In this mode only the Kleisli arrow is returned."""
+    """Construct a pipeline component whose computation will be achieved using a function. Optional input and output forming functions pre- and post-process the input and output values to and from the function. An optional state mutator function can be provided to alter the state object passed into one of the pipeline run/evaluating/executing functions. A Kleisli arrow is returned."""
     if type(function) is not types.FunctionType and \
        type(function) is not types.MethodType:
         raise ValueError("Must be a function or method")
