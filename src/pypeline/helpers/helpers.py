@@ -111,7 +111,7 @@ def cons_function_component(function,
                             input_forming_function = None,
                             output_forming_function = None,
                             state_mutator = None):
-    """Construct a component based on a function. Any input or output forming functions shall be called if provided. In this mode only the Kleisli arrow is returned."""
+    """Construct a component based on a function. Any input or output forming functions shall be called if provided. A Kleisli arrow is returned."""
     if type(function) is not types.FunctionType and \
        type(function) is not types.MethodType:
         raise ValueError("Must be a function or method")
@@ -148,7 +148,7 @@ def cons_wire(schema_conv_function):
 
 def cons_dictionary_wire(conversions):
     """Construct a wire that converts between two dictionaries. The keys of the conversions dictionary are keys in the output dictionary, of the preceeding component, whose values will be used to populate a dictionary whose keys are the value of the conversions dictionary.\n\nE.g., output = {'int': 9, 'string': 'hello'}, and conversions = {'int': 'int_two', 'string': 'string_two'}, yields an input dictionary, to the next component, input = {'int_two': 9, 'string_two': 'hello'}."""
-    return cons_wire(lambda a, _: {conversions[key]: a[key] for key in conversions})
+    return cons_wire(get_dictionary_conversion_function(conversions))
 
 
 def cons_split_wire():
@@ -202,3 +202,8 @@ def eval_pipeline(state_monad, state):
 @__kleisli_wrapper
 def exec_pipeline(state_monad, state):
     return State.execState(state_monad, state)
+
+
+def get_dictionary_conversion_function(conversion):
+    """Returns a function that completes the dictionary conversions as part of a wire."""
+    return lambda a, _: {conversions[key]: a[key] for key in conversions}
