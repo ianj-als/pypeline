@@ -118,14 +118,13 @@ def cons_function_component(function,
 
     def bind_function(a):
         def state_function(s):
-            # Transform the value into a line, that when
-            # injected into stdin, the subprocess will understand
+            # Transform the input
             transformed_a = input_forming_function(a, s) if input_forming_function else a
 
             # Apply
             new_a = function(transformed_a, s)
 
-            # Parse the output from the subprocess
+            # Transform the output of the function
             transformed_new_a = output_forming_function(new_a, s) if output_forming_function else new_a
 
             # Mutate the state
