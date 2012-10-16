@@ -74,7 +74,7 @@ class FunctionArrowChoice(ArrowChoice, FunctionArrow):
     #                 +---------------+                   +---------------+
     def __add__(self, other):
         if not isinstance(other, FunctionArrowChoice):
-            raise ValueError("Must be a FunctionArrow")
+            raise ValueError("Must be a FunctionArrowChoice")
 
         return self.left() >> other.right()
 
@@ -88,7 +88,7 @@ class FunctionArrowChoice(ArrowChoice, FunctionArrow):
     #                 +---------------+                   +---------------+                   +-------------------+
     def __or__(self, other):
         if not isinstance(other, FunctionArrowChoice):
-            raise ValueError("Must be a FunctionArrow")
+            raise ValueError("Must be a FunctionArrowChoice")
 
         def merge(either):
             if not isinstance(either, Either):
