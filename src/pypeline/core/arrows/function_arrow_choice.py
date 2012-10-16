@@ -73,8 +73,8 @@ class FunctionArrowChoice(ArrowChoice, FunctionArrow):
     #                 |   \-------/   |                   |   \-- g --/   |
     #                 +---------------+                   +---------------+
     def __add__(self, other):
-        if not isinstance(other, Arrow):
-            raise ValueError("Must be an arrow")
+        if not isinstance(other, FunctionArrowChoice):
+            raise ValueError("Must be a FunctionArrow")
 
         return self.left() >> other.right()
 
@@ -87,8 +87,8 @@ class FunctionArrowChoice(ArrowChoice, FunctionArrow):
     #                 |   \-------/   |                   |   \-- g --/   |                   |   \-- Right? -/   |
     #                 +---------------+                   +---------------+                   +-------------------+
     def __or__(self, other):
-        if not isinstance(other, Arrow):
-            raise ValueError("Must be an arrow")
+        if not isinstance(other, FunctionArrowChoice):
+            raise ValueError("Must be a FunctionArrow")
 
         def merge(either):
             if not isinstance(either, Either):
@@ -104,8 +104,8 @@ class FunctionArrowChoice(ArrowChoice, FunctionArrow):
 # test :: a b c -> a b (Either b b)
 #
 def test(arrow):
-    if not isinstance(arrow, Arrow):
-        raise ValueError("Must be an arrow")
+    if not isinstance(arrow, FunctionArrow):
+        raise ValueError("Must be a FunctionArrow")
 
     # (a &&& arr id) >>> arr (\(b, x) = if b then Left x else Right x)
     return (arrow & FunctionArrow(lambda x: x)) >> FunctionArrow(lambda t: Left(t[1]) if t[0] else Right(t[1])) 

@@ -58,8 +58,8 @@ class FunctionArrow(Arrow):
     # b --->+--- f ---+--- c ---->+--- g ---+---> d
     #       +---------+           +---------+
     def __rshift__(self, other):
-        if not isinstance(other, Arrow):
-            raise ValueError("Must be an arrow")
+        if not isinstance(other, FunctionArrow):
+            raise ValueError("Must be a FunctionArrow")
 
         return FunctionArrow(lambda b: other._func(self._func(b)))
 
@@ -72,8 +72,8 @@ class FunctionArrow(Arrow):
     # d --->+---------+---> d --->+--- g ---+---> e
     #       +---------+           +---------+
     def __pow__(self, other):
-        if not isinstance(other, Arrow):
-            raise ValueError("Must be an arrow")
+        if not isinstance(other, FunctionArrow):
+            raise ValueError("Must be a FunctionArrow")
 
         return self.first() >> other.second()
 
@@ -86,8 +86,8 @@ class FunctionArrow(Arrow):
     #       |    \----+---> b --->+---------+---> b --->+--- g ---+---> d
     #       +---------+           +---------+           +---------+
     def __and__(self, other):
-        if not isinstance(other, Arrow):
-            raise ValueError("Must be an arrow")
+        if not isinstance(other, FunctionArrow):
+            raise ValueError("Must be a FunctionArrow")
 
         return split() >> self.first() >> other.second()
 

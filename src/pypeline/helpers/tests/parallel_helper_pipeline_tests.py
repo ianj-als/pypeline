@@ -72,21 +72,32 @@ class ParallelPypelineHelperUnitTest(unittest.TestCase):
      def test_parallel_pypeline_with_split_and_unsplit_wires(self):
           rev_msg_one = "reverse(top)"
           rev_msg_two = "reverse(bottom)"
+          top_msg = "top"
+          bottom_msg = "bottom"
 
           reverse_func = lambda a, s: a[::-1]
+          top_func = lambda a, s: " ".join([a, top_msg])
+          bottom_func = lambda a, s: " ".join([a, bottom_msg])
 
           comp_rev_top = cons_function_component(reverse_func,
                                                  state_mutator = lambda s: s.append(rev_msg_one) or s)
           comp_rev_bottom = cons_function_component(reverse_func,
                                                     state_mutator = lambda s: s.append(rev_msg_two) or s)
+          comp_para_top = cons_function_component(top_func,
+                                                  state_mutator = lambda s: s.append(top_msg) or s)
+          comp_para_bottom = cons_function_component(bottom_func,
+                                                     state_mutator = lambda s: s.append(bottom_msg) or s)
 
           unsplit_func = lambda t, b: {'top': t, 'bottom': b}
 
-          pipeline = (comp_rev_top & comp_rev_bottom) >> cons_unsplit_wire(unsplit_func)
+          pipeline = (comp_rev_top & comp_rev_bottom) >> \
+                     (comp_para_top ** comp_para_bottom) >> \
+                     cons_unsplit_wire(unsplit_func)
 
           value = "hello world"
-          target = (unsplit_func(reverse_func(value, None), reverse_func(value, None)),
-                    [rev_msg_one, rev_msg_two])
+          target = (unsplit_func(top_func(reverse_func(value, None), None),
+                                 bottom_func(reverse_func(value, None), None)),
+                    [rev_msg_one, rev_msg_two, top_msg, bottom_msg])
 
           result = ParallelPypelineHelperUnitTest.test(2, pipeline, "hello world", list())
           

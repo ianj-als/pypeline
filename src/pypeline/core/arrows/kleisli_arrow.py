@@ -44,7 +44,7 @@ class KleisliArrow(Arrow):
         self._patcher = patcher
         self._func = f
 
-    # arr f = K(\b ->return(f b))
+    # arr f = K(\b -> return(f b))
     def arr(self, f):
         return KleisliArrow(self._patcher, lambda b: self._patcher(f(b)))
 
