@@ -33,14 +33,16 @@ from pypeline.helpers.parallel_helpers import cons_function_component, \
      cons_dictionary_wire, \
      cons_split_wire, \
      cons_unsplit_wire, \
-     run_pipeline
+     run_pipeline, \
+     eval_pipeline, \
+     exec_pipeline
 
 
 class ParallelPypelineHelperUnitTest(unittest.TestCase):
      @staticmethod
-     def test(no_workers, pipeline, input, state):
+     def test(no_workers, pipeline, input, state, run_function = run_pipeline):
           executor = ThreadPoolExecutor(max_workers = no_workers)
-          result = run_pipeline(executor, pipeline, input, state)
+          result = run_function(executor, pipeline, input, state)
           executor.shutdown(True)
           return result
 
@@ -101,4 +103,35 @@ class ParallelPypelineHelperUnitTest(unittest.TestCase):
 
           result = ParallelPypelineHelperUnitTest.test(2, pipeline, "hello world", list())
           
+          self.assertEquals(target, result)
+
+
+     def test_parallel_run_eval_and_exec(self):
+          value = "hello world"
+          state = 0
+
+          input_msg = "input"
+          output_msg = "output"
+
+          input_func = lambda a, s: " ".join([input_msg, a])
+          output_func = lambda a, s: " ".join([a, output_msg])
+          function = lambda a, s: a.upper()
+          composition = lambda a, s: output_func(function(input_func(a, s), s), s)
+          state_func = lambda s: s + 1
+
+          pipeline = cons_function_component(function,
+                                             input_func,
+                                             output_func,
+                                             state_mutator = state_func)
+
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, state, run_pipeline)
+          target = (composition(value, state), state_func(state))
+          self.assertEquals(target, result)
+
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, state, eval_pipeline)
+          target = composition(value, state)
+          self.assertEquals(target, result)
+
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, state, exec_pipeline)
+          target = state_func(state)
           self.assertEquals(target, result)

@@ -116,21 +116,23 @@ def __kleisli_wrapper(f):
         future = Future()
         future.set_result(input)
         state_monad = KleisliArrow.runKleisli(pipeline, future)
-        output = f(state_monad, WrappedState(executor, state))
-        return (output[0].result(), output[1].state)
+        return f(state_monad, WrappedState(executor, state))
     return wrapper
 
 
 @__kleisli_wrapper
 def run_pipeline(state_monad, state):
-     return State.runState(state_monad, state)
+     output = State.runState(state_monad, state)
+     return (output[0].result(), output[1].state)
 
 
 @__kleisli_wrapper
 def eval_pipeline(state_monad, state):
-    return State.evalState(state_monad, state)
+    future = State.evalState(state_monad, state)
+    return future.result() 
 
 
 @__kleisli_wrapper
 def exec_pipeline(state_monad, state):
-    return State.execState(state_monad, state)
+    wrapped_state = State.execState(state_monad, state)
+    return wrapped_state.state
