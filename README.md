@@ -39,7 +39,7 @@ The library also implements some monad classes, primarily, for use with the Klei
 
 ## Pipelines
 
-Pipelines can be constructed using the helpers function in the [pypeline.helpers.helpers](https://github.com/ianj-als/pypeline/blob/master/src/pypeline/helpers/helpers.py) module. There are three primitives that can be constructed:
+Pipelines can be constructed using the helper functions defined in the modules in [pypeline.helpers](https://github.com/ianj-als/pypeline/blob/master/src/pypeline/helpers). There are three primitives that can be constructed:
  1. Pipelines,
  2. Pipeline components, and
  3. Wires.
