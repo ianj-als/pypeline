@@ -135,3 +135,17 @@ class ParallelPypelineHelperUnitTest(unittest.TestCase):
           result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, state, exec_pipeline)
           target = state_func(state)
           self.assertEquals(target, result)
+
+
+     def test_parallel_wire(self):
+          value = {'PI' : 3.141, 'E' : 2.718}
+          pipeline = cons_wire(lambda a, s: {'pi' : a['PI'], 'e' : a['E']})
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
+          self.assertEquals({'pi' : 3.141, 'e' : 2.718}, result)
+
+
+     def test_parallel_dictionary_wire(self):
+          value = {'pi' : 3.141, 'e' : 2.718}
+          pipeline = cons_dictionary_wire({'pi' : 'PI', 'e' : 'E'})
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
+          self.assertEquals({'PI' : 3.141, 'E' : 2.718}, result)

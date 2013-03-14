@@ -119,4 +119,3 @@ def exec_pipeline(state_monad, state):
 def get_dictionary_conversion_function(conversions):
     """Returns a function that completes the dictionary conversions as part of a wire."""
     return lambda a, _: {conversions[key]: a[key] for key in conversions}
-

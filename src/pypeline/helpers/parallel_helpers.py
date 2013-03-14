@@ -78,17 +78,7 @@ def cons_wire(schema_conv_function):
 
 def cons_dictionary_wire(conversions):
     """Construct a wire that converts between two dictionaries. The keys of the conversions dictionary are keys in the output dictionary, of the preceeding component, whose values will be used to populate a dictionary whose keys are the value of the conversions dictionary.\n\nE.g., output = {'int': 9, 'string': 'hello'}, and conversions = {'int': 'int_two', 'string': 'string_two'}, yields an input dictionary, to the next component, input = {'int_two': 9, 'string_two': 'hello'}."""
-    def get_dictionary_wire_wrapper(conversion_function):
-        def dictionary_wire_wrapper(f, s):
-            new_value = conversion_function(f.result(), None)
-            nf = Future()
-            nf.set_result(new_value)
-            return nf
-
-        return dictionary_wire_wrapper
-
-    function = helpers.get_dictionary_conversion_function(conversions)
-    return helpers.cons_dictionary_wire(get_dictionary_conversion_function(function))
+    return cons_wire(helpers.get_dictionary_conversion_function(conversions))
 
 
 def cons_split_wire():
