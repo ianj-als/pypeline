@@ -96,7 +96,7 @@ The input and output forming functions shall take two arguments: a value and the
 
 The state mutator function shall take one argument, the state object, and return a mutated state object if desired. The state mutator function is applied after all the other functions have been applied. If no state mutator function is specified the state flows through the component unchanged.
 
-  state_mutator_function :: s -> s
+    state_mutator_function :: s -> s
 
 ### Wire Functions
 
