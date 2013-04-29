@@ -33,6 +33,12 @@ class Nothing(Maybe):
     def return_(self, a):
         return return_(a)
 
+    def __eq__(self, other):
+        return Nothing._instance is other
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __ge__(self, function):
         return Nothing()
 

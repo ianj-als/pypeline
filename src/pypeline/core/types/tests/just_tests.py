@@ -40,6 +40,10 @@ class JustMonadUnitTest(unittest.TestCase):
 
 
     def test_eq(self):
-        self.assertTrue(Just(10) == return_(10))
-        self.assertFalse(Just(10) == None)
-        self.assertFalse(Just(10) == object())
+        self.assertEquals(Just(10), return_(10))
+
+
+    def test_ne(self):
+        self.assertNotEquals(Just(11), return_(10))
+        self.assertNotEquals(Just(11), None)
+        self.assertNotEquals(Just(11), object())

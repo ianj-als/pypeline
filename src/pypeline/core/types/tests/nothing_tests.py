@@ -36,6 +36,9 @@ class NothingMonadUnitTest(unittest.TestCase):
 
 
     def test_eq(self):
-        self.assertTrue(Nothing() == return_("blah"))
-        self.assertFalse(Nothing() == None)
-        self.assertFalse(Nothing() == object())
+        self.assertEquals(Nothing(), return_("blah"))
+
+
+    def test_ne(self):
+        self.assertNotEquals(Nothing(), None)
+        self.assertNotEquals(Nothing(), object())

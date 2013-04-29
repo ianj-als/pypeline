@@ -36,6 +36,9 @@ class Left(Either):
 
         return False
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return "<Left: %s>" % self.val
 
@@ -54,6 +57,9 @@ class Right(Either):
             return True
 
         return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         return "<Right: %s>" % self.val
