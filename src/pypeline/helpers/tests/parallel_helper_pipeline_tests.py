@@ -149,3 +149,36 @@ class ParallelPypelineHelperUnitTest(unittest.TestCase):
           pipeline = cons_dictionary_wire({'pi' : 'PI', 'e' : 'E'})
           result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
           self.assertEquals({'PI' : 3.141, 'E' : 2.718}, result)
+
+
+     def test_parallel_split(self):
+          pi = 3.141
+          value = {'pi' : pi}
+          pipeline = cons_function_component(lambda a, s: a) >> \
+                     cons_split_wire() >> \
+                     cons_function_component(lambda a, s: {'PI' : a['pi']}).first() >> \
+                     (cons_function_component(lambda a, s: {'PI' : a['PI']}) ** \
+                      cons_function_component(lambda a, s: a)) >> \
+                      cons_unsplit_wire(lambda t, b: {'PI' : t['PI'], 'pi' : b['pi']})
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
+          self.assertEquals({'PI' : pi, 'pi' : pi}, result)
+
+
+     def test_parallel_first_and_second(self):
+          pi = 3.141
+          e = 2.718
+          value = {'pi' : pi, 'e' : e}
+          pipeline = cons_split_wire() >> \
+                     (cons_dictionary_wire({'pi' : 'PI'}) >> cons_function_component(lambda a, s: {'PI' : a['PI']})).first() >> \
+                     (cons_dictionary_wire({'e' : 'E'}) >> cons_function_component(lambda a, s: {'E' : a['E']})).second()
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
+          self.assertEquals(({'PI' : pi}, {'E' : e}), result)
+
+
+     def test_parallel_tuple_input_wire(self):
+          pi = 3.141
+          e = 2.718
+          value = ({'pi' : pi}, {'e' : e})
+          pipeline = cons_wire(lambda t, s: ({'pi' : t[0]['pi']}, {'e' : t[1]['e']}))
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
+          self.assertEquals(({'pi' : pi}, {'e' : e}), result)
