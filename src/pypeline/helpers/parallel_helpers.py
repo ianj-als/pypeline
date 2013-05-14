@@ -44,10 +44,7 @@ def cons_function_component(function,
             # Unpack state
             state = wrapped_state.state
 
-            print "Comp input: %s" % str(future) if isinstance(future, Future) \
-                  else "Comp input Not Future: %s" % str(future)
-
-            assert isinstance(future, Future)
+            assert isinstance(future, Future), "Future is not a future! Strange."
 
             def do_transformation(a, s):
                 # Transform the input
