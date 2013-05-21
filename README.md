@@ -11,6 +11,8 @@ Arrow introductory reading:
  * Arrows, By Christoph Galliker, June 2010
  * Kleisli arrows of outrageous fortune, Conor McBride, 2011
 
+This project was developed as part of the [MosesCore FP7 Project](http://www.statmt.org/mosescore/).
+
 ## Installation
 
 setuptools is required to build, test and install Pypeline. Eggs can be built and installed also.
