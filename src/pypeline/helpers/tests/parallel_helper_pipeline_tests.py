@@ -33,6 +33,7 @@ from pypeline.helpers.parallel_helpers import cons_function_component, \
      cons_dictionary_wire, \
      cons_split_wire, \
      cons_unsplit_wire, \
+     cons_if_component, \
      run_pipeline, \
      eval_pipeline, \
      exec_pipeline
@@ -42,8 +43,10 @@ class ParallelPypelineHelperUnitTest(unittest.TestCase):
      @staticmethod
      def test(no_workers, pipeline, input, state, run_function = run_pipeline):
           executor = ThreadPoolExecutor(max_workers = no_workers)
-          result = run_function(executor, pipeline, input, state)
-          executor.shutdown(True)
+          try:
+               result = run_function(executor, pipeline, input, state)
+          finally:
+               executor.shutdown(True)
           return result
 
 
@@ -182,3 +185,17 @@ class ParallelPypelineHelperUnitTest(unittest.TestCase):
           pipeline = cons_wire(lambda t, s: ({'pi' : t[0]['pi']}, {'e' : t[1]['e']}))
           result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
           self.assertEquals(({'pi' : pi}, {'e' : e}), result)
+
+
+     def test_parallel_if(self):
+          then_comp = cons_function_component(lambda a, s: {'z' : 'THEN'})
+          else_comp = cons_dictionary_wire({'c' : 'z'})
+          pipeline = cons_if_component(lambda a, s: a['a'] == True, then_comp, else_comp)
+
+          value = {'a' : True, 'b' : 'then', 'c' : 'else'}
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
+          self.assertEquals({'z' : 'THEN'}, result)
+
+          value = {'a' : False, 'b' : 'then', 'c' : 'else'}
+          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
+          self.assertEquals({'z' : 'else'}, result)

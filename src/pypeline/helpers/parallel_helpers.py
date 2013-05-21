@@ -18,6 +18,8 @@
 #
 from concurrent.futures import Future
 from pypeline.core.arrows.kleisli_arrow import KleisliArrow, split, unsplit
+from pypeline.core.arrows.kleisli_arrow_choice import KleisliArrowChoice
+from pypeline.core.types.either import Left, Right
 from pypeline.core.types.state import State, return_
 from pypeline.helpers.helpers import get_dictionary_conversion_function
 
@@ -39,12 +41,18 @@ def cons_function_component(function,
                             output_forming_function = None,
                             state_mutator = None):
     """Construct a component based on a function. Any input or output forming functions shall be called if provided. A Kleisli arrow is returned."""
-    def bind_function(future):
+    def bind_function(bind_a):
         def state_function(wrapped_state):
             # Unpack state
             state = wrapped_state.state
 
-            assert isinstance(future, Future), "Future is not a future! Strange."
+            # Handle input
+            if isinstance(bind_a, tuple):
+                the_a = (bind_a[0].result(), bind_a[1].result())
+            elif isinstance(bind_a, Future):
+                the_a = bind_a.result()
+            else:
+                the_a = bind_a
 
             def do_transformation(a, s):
                 # Transform the input
@@ -60,7 +68,7 @@ def cons_function_component(function,
 
             # Execute
             new_future = wrapped_state.executor.submit(do_transformation,
-                                                       future.result(),
+                                                       the_a,
                                                        state)
 
             # Mutate the state
@@ -133,6 +141,26 @@ def cons_unsplit_wire(unsplit_function):
         return unsplit_wrapper
     
     return unsplit(return_, get_unsplit_wrapper(unsplit_function))
+
+
+def cons_if_component(condition_function, then_component, else_component):
+    """Construct a conditional execution component. If the conditional function evaluates to true the 'then' component is executed. Otherwise, the 'else' component is executed. Returns a Kleisli arrow."""
+    def get_left_right_wrapper():
+        def left_right_bind_function(futured_tuple):
+            def left_right_state_function(s):
+                condition_result = futured_tuple[0].result()
+                a = futured_tuple[1].result()
+                new_a = Left(a) if condition_result else Right(a)
+                return (new_a, s)
+            return State(left_right_state_function)
+        return left_right_bind_function
+
+    test = (cons_function_component(condition_function) & cons_function_component(lambda a, s: a)) >> \
+           KleisliArrow(return_, get_left_right_wrapper())
+    if_comp = test >> (KleisliArrowChoice(return_, then_component._func) | \
+                       KleisliArrowChoice(return_, else_component._func))
+
+    return if_comp
 
 
 def __handle_output(o):
