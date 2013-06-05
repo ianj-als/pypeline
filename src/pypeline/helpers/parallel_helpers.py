@@ -19,7 +19,7 @@
 from concurrent.futures import Future
 from pypeline.core.arrows.kleisli_arrow import KleisliArrow, split, unsplit
 from pypeline.core.arrows.kleisli_arrow_choice import KleisliArrowChoice
-from pypeline.core.types.either import Left, Right
+from pypeline.core.types.either import Either, Left, Right
 from pypeline.core.types.state import State, return_
 from pypeline.helpers.helpers import get_dictionary_conversion_function
 
@@ -54,7 +54,7 @@ def cons_function_component(function,
                     elif isinstance(a, Future):
                         the_a = a.result()
                     else:
-                        the_a = a
+                        raise ValueError("Component state function has value that is not of type tuple or Future")
                     
                     # Transform the input
                     transformed_a = input_forming_function(the_a, state) if input_forming_function else the_a
@@ -152,20 +152,56 @@ def cons_unsplit_wire(unsplit_function):
 
 def cons_if_component(condition_function, then_component, else_component):
     """Construct a conditional execution component. If the conditional function evaluates to true the 'then' component is executed. Otherwise, the 'else' component is executed. Returns a Kleisli arrow."""
-    def get_left_right_wrapper():
-        def left_right_bind_function(futured_tuple):
-            def left_right_state_function(s):
-                condition_result = futured_tuple[0].result()
-                a = futured_tuple[1].result()
-                new_a = Left(a) if condition_result else Right(a)
-                return (new_a, s)
-            return State(left_right_state_function)
-        return left_right_bind_function
+    if not isinstance(then_component, KleisliArrow):
+        raise ValueError("Then component must be a KleisliArrow")
+    if not isinstance(else_component, KleisliArrow):
+        raise ValueError("Else component must be a KleisliArrow")
 
-    test = (cons_function_component(condition_function) & cons_function_component(lambda a, s: a)) >> \
-           KleisliArrow(return_, get_left_right_wrapper())
-    if_comp = test >> (KleisliArrowChoice(return_, then_component._func) | \
-                       KleisliArrowChoice(return_, else_component._func))
+    def get_test_bind_function():
+        def test_bind_function(bind_a):
+            def test_state_function(wrapped_state):
+                # Unpack state
+                state = wrapped_state.state
+
+                def do_transformation(a, s):
+                    # Handle input
+                    if isinstance(a, tuple):
+                        the_a = (a[0].result(), a[1].result())
+                    elif isinstance(a, Future):
+                        the_a = a.result()
+                    else:
+                        raise ValueError("Test state function has value that is not of type tuple or Future")
+
+                    condition_result = condition_function(a, s)
+                    new_a = Left(a) if condition_result else Right(a)
+
+                    return new_a
+
+                # Execute
+                new_future = wrapped_state.executor.submit(do_transformation,
+                                                           bind_a,
+                                                           state)
+
+                # New value/state pair
+                return (new_future, wrapped_state)
+            return State(test_state_function)
+        return test_bind_function
+
+    def get_if_left_function(left_function):
+        def if_left_function(futured_either):
+            either = futured_either.result()
+            if isinstance(either, Left):
+                return left_function(either.val) >= (lambda a: return_(Left(a)))
+            elif isinstance(either, Right):
+                return return_(either)
+            else:
+                raise ValueError("Result of future must be of type Either")
+        return if_left_function
+
+    if_comp = KleisliArrow(return_, get_test_bind_function()) >> \
+              ((KleisliArrowChoice(return_, get_if_left_function(then_component._func)) >> \
+                KleisliArrowChoice(return_, else_component._func).right()) >> \
+               KleisliArrow(return_, lambda either: return_(either.val)))
 
     return if_comp
 
