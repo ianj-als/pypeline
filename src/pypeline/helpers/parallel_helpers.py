@@ -49,10 +49,10 @@ def cons_function_component(function,
 
                 def do_transformation(a, s):
                     # Handle input
-                    if isinstance(a, tuple):
-                        the_a = (a[0].result(), a[1].result())
-                    elif isinstance(a, Future):
+                    if isinstance(a, Future):
                         the_a = a.result()
+                    elif isinstance(a, tuple):
+                        the_a = a
                     else:
                         raise ValueError("Component state function has value that is not of type tuple or Future")
                     
@@ -82,30 +82,18 @@ def cons_function_component(function,
     return KleisliArrow(return_, get_bind_function())
 
 
-def cons_wire(schema_conv_function):
+def cons_wire(wire_function):
     """Construct a wire. A wire is a Kleisli arrow that converts data from from one pipeline component's output schema to another pipeline component's input schema."""
-    def get_wire_bind_function():
-        def wire_bind_function(a):
-            def wire_state_function(s):
-                new_a = schema_conv_function(a, s.state)
-                if isinstance(a, tuple):
-                    futured_new_a = [None, None]
-                    for a_new_a, futured_new_a_idx in zip(new_a, range(len(futured_new_a))):
-                        if isinstance(a_new_a, Future):
-                            futured_new_a[futured_new_a_idx] = a_new_a
-                        else:
-                            futured_new_a[futured_new_a_idx] = Future()
-                            futured_new_a[futured_new_a_idx].set_result(a_new_a)
-                    futured_new_a = tuple(futured_new_a)
-                else:
-                    futured_new_a = Future()
-                    futured_new_a.set_result(new_a)
+    def get_wire_function(conv_function):
+        def wire_function(a, s):
+            if isinstance(a, tuple):
+                raise ValueError("Wire has value that is a tuple")
+            new_a = conv_function(a, s)
+            return new_a
 
-                return (futured_new_a, s)
-            return State(wire_state_function)
-        return wire_bind_function
+        return wire_function
 
-    return KleisliArrow(return_, get_wire_bind_function())
+    return cons_function_component(get_wire_function(wire_function))
 
 
 def cons_dictionary_wire(conversions):
@@ -118,20 +106,9 @@ def cons_split_wire():
     def get_split_wire_bind_function():
         def split_wire_bind_function(a):
             def split_wire_state_function(s):
-                new_a = [None, None]
                 if isinstance(a, tuple):
-                    for an_a, new_a_idx in zip(a, range(len(new_a))):
-                        if isinstance(an_a, Future):
-                            new_a[new_a_idx] = an_a
-                        else:
-                            assert False, "Tuple does not contain futures: %s" % str(a)
-                else:
-                    new_a[0] = Future()
-                    new_a[1] = Future()
-                    new_a[0].set_result(a)
-                    new_a[1].set_result(a)
-
-                return (tuple(new_a), s)
+                    raise ValueError("Split wire has a value that is a tuple")
+                return ((a, a), s)
             return State(split_wire_state_function)
         return split_wire_bind_function
 
@@ -223,6 +200,7 @@ def __kleisli_wrapper(f):
         else:
             future = Future()
             future.set_result(input)
+
         state_monad = KleisliArrow.runKleisli(pipeline, future)
         return f(state_monad, WrappedState(executor, state))
     return wrapper

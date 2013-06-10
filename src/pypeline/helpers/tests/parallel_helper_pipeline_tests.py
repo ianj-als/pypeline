@@ -178,15 +178,6 @@ class ParallelPypelineHelperUnitTest(unittest.TestCase):
           self.assertEquals(({'PI' : pi}, {'E' : e}), result)
 
 
-     def test_parallel_tuple_input_wire(self):
-          pi = 3.141
-          e = 2.718
-          value = ({'pi' : pi}, {'e' : e})
-          pipeline = cons_wire(lambda t, s: ({'pi' : t[0]['pi']}, {'e' : t[1]['e']}))
-          result = ParallelPypelineHelperUnitTest.test(1, pipeline, value, None, eval_pipeline)
-          self.assertEquals(({'pi' : pi}, {'e' : e}), result)
-
-
      def test_parallel_if(self):
           then_comp = cons_function_component(lambda a, s: {'z' : 'THEN'})
           else_comp = cons_dictionary_wire({'c' : 'z'})
