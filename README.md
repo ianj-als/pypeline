@@ -7,9 +7,9 @@ A pipeline building library based on *arrows*. Arrows are abstractions of comput
 This implementation is heavily inspired by the Haskell arrow typeclasses: a description of which can be found [here](http://www.haskell.org/arrows/index.html).
 
 Arrow introductory reading:
- * Generalising Monads to Arrows, in Science of Computer Programming 37, pp67-111, May 2000
- * Arrows, By Christoph Galliker, June 2010
- * Kleisli arrows of outrageous fortune, Conor McBride, 2011
+ * [Generalising Monads to Arrows](http://pdn.sciencedirect.com/science?_ob=MiamiImageURL&_cid=271600&_user=10&_pii=S0167642399000234&_check=y&_origin=search&_zone=rslt_list_item&_coverDate=2000-05-31&wchp=dGLzVlk-zSkWb&md5=fa91ab4ffc136b0cedc52318c7c249be&pid=1-s2.0-S0167642399000234-main.pdf), by John Hughes, in Science of Computer Programming 37, pp67-111, May 2000
+ * [Arrows](http://www.google.co.uk/url?sa=t&rct=j&q=arrows%2C%20by%20christoph%20galliker%2C%20june%202010&source=web&cd=3&ved=0CDkQFjAC&url=http%3A%2F%2Fwiki.ifs.hsr.ch%2FSemProgAnTr%2Ffiles%2FArrowsV4Final.pdf&ei=RBzIUczfIOep7Aaiy4HIBA&usg=AFQjCNGqEtEcIwEQ2leC8lp_4qQTHRZKvQ&bvm=bv.48293060,d.ZGU), by Christoph Galliker, June 2010
+ * [Kleisli arrows of outrageous fortune](http://www.google.co.uk/url?sa=t&rct=j&q=kleisli%20arrows%20of%20outrageous%20fortune%2C%20conor%20mcbride%2C%202011&source=web&cd=1&cad=rja&ved=0CC8QFjAA&url=http%3A%2F%2Fpersonal.cis.strath.ac.uk%2F~conor%2FKleisli.pdf&ei=jRzIUePrLuud7gaQtIHgDA&usg=AFQjCNG5aO2kQrYOjP71SltPo1vW7kQrMQ&bvm=bv.48293060,d.ZGU), by Conor McBride, 2011
 
 This project was developed as part of the [MosesCore FP7 Project](http://www.statmt.org/mosescore/).
 
