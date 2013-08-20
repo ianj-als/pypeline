@@ -35,16 +35,18 @@ from pypeline.core.types.monad import Monad
 #
 class State(Monad):
     def __init__(self, a):
-        if type(a) is types.FunctionType or \
-           type(a) is types.MethodType:
-            self._func = a
-        else:
-            self._func = lambda s: (a, s)
+        super(Monad, self).__init__()
+        if type(a) is not types.FunctionType and \
+           type(a) is not types.MethodType:
+            raise ValueError("Must be a function or method")
+
+        self._func = a
 
     # return
     # return :: a -> m a
-    def return_(self, a):
-        return return_(a)
+    @staticmethod
+    def return_(a):
+        return State(lambda s: (a, s))
 
     # (>>=) :: State s a -> (a -> State s b) -> State s b
     # (State h) >>= f = State $ \s -> let (a, newState) = h s
@@ -83,4 +85,4 @@ class State(Monad):
 
 
 def return_(a):
-    return State(a)
+    return State.return_(a)

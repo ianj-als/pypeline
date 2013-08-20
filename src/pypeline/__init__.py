@@ -16,3 +16,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Pypeline.  If not, see <http://www.gnu.org/licenses/>.
 #
+import sys
+
+if sys.version_info < (2, 7):
+    raise Exception("Python version too old, please use 2.7 or newer.")
+

@@ -114,7 +114,7 @@ def test(arrow):
 #
 # This maker returns an arrow that implements if
 #
-# if_maker :: (b -> c) -> (b -> d) -> (b -> d) -> a b (Either d d)
+# if_maker :: (b -> c) -> (b -> d) -> (b -> d) -> a b d
 #
 def if_maker(predicate_func, then_func, else_func):
     return test(FunctionArrow(predicate_func)) >> (FunctionArrowChoice(then_func) | FunctionArrowChoice(else_func))

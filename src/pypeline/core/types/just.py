@@ -26,14 +26,16 @@ from pypeline.core.types.monad import Maybe
 #
 class Just(Maybe):
     def __init__(self, a):
+        super(Maybe, self).__init__()
         if a is None:
             raise ValueError("Value cannot be None")
         self._a = a
 
     # return
     # return :: a -> m a
-    def return_(self, a):
-        return return_(a)
+    @staticmethod
+    def return_(a):
+        return Just(a)
 
     def __ge__(self, function):
         if type(function) is not types.FunctionType and \
@@ -65,4 +67,4 @@ class Just(Maybe):
 
 
 def return_(a):
-    return Just(a)
+    return Just.return_(a)

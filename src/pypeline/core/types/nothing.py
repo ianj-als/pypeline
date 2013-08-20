@@ -30,8 +30,12 @@ class Nothing(Maybe):
             cls._instance = super(Nothing, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def return_(self, a):
-        return return_(a)
+    def __init__(self, *a):
+        pass
+
+    @staticmethod
+    def return_(a):
+        return Nothing()
 
     def __eq__(self, other):
         return Nothing._instance is other
@@ -49,5 +53,5 @@ class Nothing(Maybe):
         return False
 
 
-def return_(a):
-    return Nothing()
+def return_(*a):
+    return Nothing.return_(a)

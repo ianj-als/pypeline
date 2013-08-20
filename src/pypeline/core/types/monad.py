@@ -44,5 +44,6 @@ class Monad(object):
 # Erm, maybe...
 #
 class Maybe(Monad):
-    pass
+    def __init__(self):
+        super(Monad, self).__init__()
 
