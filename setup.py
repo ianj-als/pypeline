@@ -21,7 +21,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "pypeline",
-    version = "0.3.0",
+    version = "0.3.1",
     packages = find_packages("src", exclude = ["*tests"]),
     package_dir = {'': 'src'},
 

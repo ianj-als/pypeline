@@ -17,8 +17,6 @@
 # along with Pypeline.  If not, see <http://www.gnu.org/licenses/>.
 #
 import unittest
-import os
-import sys
 
 from pypeline.core.types.cont import Cont, return_, callCC
 
@@ -59,7 +57,12 @@ class ContMonadUnitTest(unittest.TestCase):
             return callCC(lambda ok: callCC(lambda not_ok: not_ok("Divide by zero error") if y is 0 else ok(x / y)) >=
                           (lambda err: k(err)))
 
-        error = lambda err: Cont(lambda _: sys.stderr.write(err + os.linesep))
+        error = lambda err: Cont(lambda _: self.__set_error_message(err))
 
         self.assertEquals(3, Cont.runCont(divide_cps(10, 3, error), lambda x: x))
-        self.assertEquals(None, Cont.runCont(divide_cps(10, 0, error), lambda x: x))
+        Cont.runCont(divide_cps(10, 0, error), lambda x: x)
+        self.assertEquals("Divide by zero error", self.error_message)
+
+
+    def __set_error_message(self, err):
+        self.error_message = err
