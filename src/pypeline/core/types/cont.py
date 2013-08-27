@@ -63,5 +63,9 @@ def callCC(f):
        type(f) is not types.MethodType:
         raise ValueError("Must be a function or method")
 
-    cont = lambda k: Cont.runCont(f(lambda a: Cont(lambda: k(a)), k))
-    return Cont(cont)
+    def function(k):
+        def function_arg(a):
+            return Cont(lambda x: k(a))
+        return Cont.runCont(f(function_arg), k)
+
+    return Cont(function)

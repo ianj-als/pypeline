@@ -26,7 +26,7 @@ class ArrowUnitTests(unittest.TestCase):
     # Arrow law tests
     #
 
-    # Identity
+    # arr id = id
     def test_identity(self):
         iden = lambda x: x
         arrow = FunctionArrow(iden)
@@ -48,6 +48,69 @@ class ArrowUnitTests(unittest.TestCase):
         self.assertEquals(arrow_func_comp(value), arrow_comp(value))
 
 
+    # first (arr f) = arr (first f)
+    def first_arr_f_is_arr_first_f(self):
+        f = lambda x: x + 1
+        fst = lambda x: x[0] + 1
+
+        arrow_one = FunctionArrow(f).first()
+        arrow_two = FunctionArrow(fst)
+
+        value = (8, -10)
+        self.assertEquals(arrow_one(value), arrow_two(value))
+
+
+    # first (a >>> b) = first a >>> first b
+    def test_first_a_b_is_first_a_first_b(self):
+        a = lambda x: x * 9
+        b = lambda x: x - 7
+        c = lambda x: b(a(x))
+
+        arrow_one = FunctionArrow(c).first()
+        arrow_two = FunctionArrow(a).first() >> FunctionArrow(b).first()
+
+        value = (7, 21)
+        self.assertEquals(arrow_one(value), arrow_two(value))
+
+
+    # first f >>> arr fst = arr fst >>> f
+    def test_first_arrow_fst_is_arrow_fst_func(self):
+        fst = lambda x: x[0]
+        f = lambda x: x * -9
+
+        arrow_one = FunctionArrow(f).first() >> FunctionArrow(fst)
+        arrow_two = FunctionArrow(fst) >> FunctionArrow(f)
+
+        value = (-3, 19)
+        self.assertEquals(arrow_one(value), arrow_two(value))
+
+
+    # first f >>> arr (id *** g) = arr (id *** g) >>> first f
+    def first_f_arr_id_g_is_arr_id_g_first_f(self):
+        id = lambda x: x
+        f = lambda x: x * -3
+        g = lambda x: x - 9
+
+        arrow_one = FunctionArrow(f).first() >> (FunctionArrow(id) * FunctionArrow(g))
+        arrow_two = (FunctionArrow(id) * FunctionArrow(g)) >> FunctionArrow(f).first()
+
+        value = (-9, 8)
+        self.assertEquals(arrow_one(value), arrow_two(value))
+
+
+    # first (first f) >>> arr assoc = arr assoc >>> first f
+    # where assoc((a, b), c) = (a, (b, c))
+    def first_first_f_arr_assoc_is_arr_assoc_first_f(self):
+        assoc = lambda ab, c: (ab[0], (ab[1], c))
+        f = lambda x: x + 3
+
+        arrow_one = FunctionArrow(f).first().first() >> FunctionArrow(assoc)
+        arrow_two = FunctionArrow(assoc) >> FunctionArrow(f).first()
+
+        value = ((1, 2), 3)
+        self.assertEquals(arrow_one(value), arrow_two(value))
+
+
     # arr id >>> a = a = a >>> arr id
     def test_arrow_id_func_is_func_is_func_comp_arrow(self):
         a = lambda x: x + 1
@@ -61,12 +124,6 @@ class ArrowUnitTests(unittest.TestCase):
         self.assertEquals(arrow_two(value), a(value))
 
 
-    # first a >>> arr pi_1 = arr pi_1 >>> a
-    def test_first_arrow_pi_is_arrow_pi_func(self):
-        # Not sure what pi_1 is in this law
-        pass
-
-
     # first a >>> arr (id x f) = arr (id x f) >>> first a
     # first a >>> second f = second f >>> first a
     def test_first_arr_id_f_is_arr_id_f_first(self):
@@ -77,30 +134,6 @@ class ArrowUnitTests(unittest.TestCase):
         arrow_two = FunctionArrow(f).second() >> FunctionArrow(a).first()
 
         value = (3, 9)
-        self.assertEquals(arrow_one(value), arrow_two(value))
-
-
-    # first a >>> arr alpha = arr alpha >>> first (first a)
-    def test_first_a_comp_arr_alpha_is_arr_alpha_first_first_a(self):
-        # not sure what alpha is in this law
-        pass
-
-
-    # first (arr f) = arr (f x id)
-    # first f = arr (first f)
-    # first f = first f
-
-
-    # first (a >>> b) = first a >>> first b
-    def test_first_a_b_is_first_a_first_b(self):
-        a = lambda x: x * 9
-        b = lambda x: x - 7
-        c = lambda x: b(a(x))
-
-        arrow_one = FunctionArrow(c).first()
-        arrow_two = FunctionArrow(a).first() >> FunctionArrow(b).first()
-
-        value = (7, 21)
         self.assertEquals(arrow_one(value), arrow_two(value))
 
 

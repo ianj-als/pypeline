@@ -59,8 +59,7 @@ class ContMonadUnitTest(unittest.TestCase):
             return callCC(lambda ok: callCC(lambda not_ok: not_ok("Divide by zero error") if y is 0 else ok(x / y)) >=
                           (lambda err: k(err)))
 
-        error = lambda err: sys.stderr.write(err + os.linesep)
+        error = lambda err: Cont(lambda _: sys.stderr.write(err + os.linesep))
 
-        print Cont.runCont(divide_cps(10, 2, error), lambda x: x)
-        print Cont.runCont(divide_cps(10, 0, error), lambda x: x)
-        self.assertTrue(False)
+        self.assertEquals(3, Cont.runCont(divide_cps(10, 3, error), lambda x: x))
+        self.assertEquals(None, Cont.runCont(divide_cps(10, 0, error), lambda x: x))
